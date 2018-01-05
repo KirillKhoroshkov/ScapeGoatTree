@@ -24,7 +24,7 @@ internal fun <K: Comparable<K>, V> printSubTree(root: ScapeGoatTree.ScapeGoatEnt
                         hasNotNull = true
                         currentList.add(current.left)
                     } else {
-                        sb.append("(N=N, ")
+                        sb.append("((N=N), ")
                         currentList.add(null)
                     }
                     if (current.right != null) {
@@ -32,13 +32,13 @@ internal fun <K: Comparable<K>, V> printSubTree(root: ScapeGoatTree.ScapeGoatEnt
                         hasNotNull = true
                         currentList.add(current.right)
                     } else {
-                        sb.append("N=N)")
+                        sb.append("(N=N))")
                         currentList.add(null)
                     }
                 } else {
                     currentList.add(null)
                     currentList.add(null)
-                    sb.append("(N=N, N=N)")
+                    sb.append("((N=N), (N=N))")
                 }
             }
             if (hasNotNull) {

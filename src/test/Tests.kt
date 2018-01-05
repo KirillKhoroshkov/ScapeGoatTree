@@ -175,4 +175,36 @@ class Tests {
         println("Entries")
         println(map.entries)
     }
+
+    @Test
+    fun remove(){
+        println("REMOVE")
+        val map = ScapeGoatTree<Int, Int>(0.6)
+        map.put(1, 1)
+        map.put(2, 2)
+        map.put(5, 5)
+        map.put(3, 3)
+        map.put(4, 4)
+        map.put(7, 7)
+        map.put(6, 6)
+        printTree(map)
+        println("_______________________________________")
+        println("Remove(5):")
+        map.remove(5)
+        printTree(map)
+        println("_______________________________________")
+        println("Remove(3):")
+        map.remove(3)
+        printTree(map)
+        println("_______________________________________")
+        println("Remove(1):")
+        map.remove(1)
+        printTree(map)
+        println("_______________________________________")
+        map.remove(7)
+        map.remove(6)
+        map.remove(2)
+        map.remove(4)
+        printTree(map)
+    }
 }

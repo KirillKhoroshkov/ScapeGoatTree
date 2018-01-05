@@ -252,7 +252,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
                 } else {
                     coefficient = coefficient.substring(0, 6)
                 }
-                println("COEFF: " + coefficient)
+                println("COEFFICIENT: " + coefficient)
                 println("HEIGHT: " + depth)
                 if (depth > coefficient.toDouble()) {
                     println("height > coefficient")
@@ -311,6 +311,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
                 top = topLeft
             }
         }
+        maxSize = _size
         return bisect(sortedEntryList)
     }
 
@@ -333,8 +334,46 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
      * @return the previous value associated with the key, or `null` if the key was not present in the map.
      */
     override fun remove(key: K): V? {
-        if (!findPath(key).isEmpty()){
-            return null
+        val path = findPath(key)
+        if (!path.isEmpty()) {
+            val node = path.removeLast()
+            val parentOfNode = if (path.isEmpty()) null else path.removeLast()
+            val newNode: ScapeGoatEntry<K, V>?
+            if (node.left != null && node.right != null) {
+                var parentOfLeftmostOfRight = node
+                var leftmostOfRight = node.right
+                while (leftmostOfRight!!.left != null) {
+                    parentOfLeftmostOfRight = leftmostOfRight
+                    leftmostOfRight = leftmostOfRight.left
+                }
+                if (node.right != leftmostOfRight) {
+                    parentOfLeftmostOfRight.left = leftmostOfRight.right
+                    leftmostOfRight.right = node.right
+                }
+                leftmostOfRight.left = node.left
+                newNode = leftmostOfRight
+            } else if (node.left != null) {
+                newNode = node.left
+            } else if (node.right != null) {
+                newNode = node.right
+            } else {
+                newNode = null
+            }
+            if (parentOfNode != null){
+                if (parentOfNode.left == node){
+                    parentOfNode.left = newNode
+                } else {
+                    parentOfNode.right = newNode
+                }
+            }
+            if (node == root) {
+                root = newNode
+            }
+            _size--
+            if (_size < balanceFactor * maxSize && root != null) {
+                root = rebuild(root!!)
+            }
+            return node.value
         } else {
             return null
         }
