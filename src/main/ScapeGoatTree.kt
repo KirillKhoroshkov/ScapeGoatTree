@@ -139,6 +139,14 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
             return "($key=$value)"
         }
 
+        override fun equals(other: Any?): Boolean {
+            return (other is ScapeGoatEntry<*, *> && key == other.key && value == other.value)
+        }
+
+        override fun hashCode(): Int {
+            return key!!.hashCode() + value!!.hashCode() * 13
+        }
+
     }
 
     private fun find(key: K, from: ScapeGoatEntry<K, V>?): ScapeGoatEntry<K, V>? {
@@ -156,7 +164,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         var current = root
         while (current != null) {
             deque.addLast(current)
-            if (current.key == key){
+            if (current.key == key) {
                 current = null
             } else {
                 if (current.key > key) {
@@ -359,8 +367,8 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
             } else {
                 newNode = null
             }
-            if (parentOfNode != null){
-                if (parentOfNode.left == node){
+            if (parentOfNode != null) {
+                if (parentOfNode.left == node) {
                     parentOfNode.left = newNode
                 } else {
                     parentOfNode.right = newNode
@@ -423,8 +431,8 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
      * Returns `true` if the map maps one or more keys to the specified [value].
      */
     override fun containsValue(value: V): Boolean {
-        for (element in this){
-            if (element.value == value){
+        for (element in this) {
+            if (element.value == value) {
                 return true
             }
         }
