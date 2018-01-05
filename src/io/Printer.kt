@@ -6,13 +6,13 @@ fun <K: Comparable<K>, V> printTree(map: ScapeGoatTree<K, V>){
     printSubTree(map.root)
 }
 
-internal fun <K: Comparable<K>, V> printSubTree(root: ScapeGoatTree.Node<K, V>?) {
-    var nodes = mutableListOf<ScapeGoatTree.Node<K, V>?>()
+internal fun <K: Comparable<K>, V> printSubTree(root: ScapeGoatTree.ScapeGoatEntry<K, V>?) {
+    var nodes = mutableListOf<ScapeGoatTree.ScapeGoatEntry<K, V>?>()
     var sb = StringBuilder()
     if (root != null) {
         println("($root)")
         nodes.add(root)
-        var currentList = mutableListOf<ScapeGoatTree.Node<K, V>?>()
+        var currentList = mutableListOf<ScapeGoatTree.ScapeGoatEntry<K, V>?>()
         while (!nodes.isEmpty()) {
             var hasNotNull = false
             while (!nodes.isEmpty()) {

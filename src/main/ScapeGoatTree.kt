@@ -5,24 +5,35 @@ import java.util.*
 import kotlin.NoSuchElementException
 
 class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>, Iterable<Map.Entry<K, V>>, Cloneable, Serializable {
-    internal var root: Node<K, V>? = null
 
-    private var A: Double
-    init {
-        if (balanceFactor >= 1 || balanceFactor < 0.5) {
-            throw IllegalArgumentException()
-        } else {
-            A = balanceFactor
-        }
+    internal var root: ScapeGoatEntry<K, V>? = null
+
+    var balanceFactor: Double = if (balanceFactor >= 1 || balanceFactor < 0.5) {
+        throw IllegalArgumentException()
+    } else {
+        balanceFactor
     }
+        set(value) {
+            val oldBalanceFactor = field
+            if (value >= 1 || value < 0.5) {
+                throw IllegalArgumentException()
+            } else {
+                field = value
+                if (oldBalanceFactor > field && root != null) {
+                    root = rebuild(root!!)
+                }
+            }
+        }
+
+    private var _size: Int = 0
+
+    private var maxSize = 0
 
     /**
      * Returns the number of key/value pairs in the map.
      */
-    override var size: Int = 0
-        get() = size
-
-    private var maxSize = 0
+    override val size: Int
+        get() = _size
 
     /**
      * Returns a [Set] view of the mappings contained in this map.
@@ -43,19 +54,39 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
      * sorted in ascending key order
      */
     override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() {
+            val set = mutableSetOf<MutableMap.MutableEntry<K, V>>()
+            for (element in this) {
+                set.add(element as MutableMap.MutableEntry<K, V>)
+            }
+            return set
+        }
 
-    override val keys = mutableSetOf<K>()
+    override val keys: MutableSet<K>
+        get() {
+            val set = mutableSetOf<K>()
+            for (element in this) {
+                set.add(element.key)
+            }
+            return set
+        }
 
-    override val values = mutableListOf<V>()
+    override val values: MutableList<V>
+        get() {
+            val set = mutableListOf<V>()
+            for (element in this) {
+                set.add(element.value)
+            }
+            return set
+        }
 
     inner class ScapeGoatTreeIterator : Iterator<Map.Entry<K, V>> {
-        private val innerRoots = ArrayDeque<Node<K, V>>()
+        private val innerRoots = ArrayDeque<ScapeGoatEntry<K, V>>()
         private var next = root
-        private var counter = size
+        private var counter = _size
         private var returnedBack = false
 
-        private fun findNext(): Node<K, V>? {
+        private fun findNext(): ScapeGoatEntry<K, V>? {
             val current = next
             if (!returnedBack && next!!.left != null) {
                 innerRoots.add(next)
@@ -82,14 +113,17 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         /**
          * Returns the next element in the iteration.
          */
-        override fun next(): Map.Entry<K, V> {
-            val it = findNext() ?: throw NoSuchElementException()
-            return ScapeGoatEntry(it.key, it.value)
+        override fun next(): MutableMap.MutableEntry<K, V> {
+            return findNext() ?: throw NoSuchElementException()
         }
 
     }
 
-    inner class ScapeGoatEntry<K, V>(override val key: K, override var value: V) : MutableMap.MutableEntry<K, V> {
+    class ScapeGoatEntry<K, V>(override val key: K, override var value: V) : MutableMap.MutableEntry<K, V> {
+
+        internal var left: ScapeGoatEntry<K, V>? = null
+        internal var right: ScapeGoatEntry<K, V>? = null
+
         /**
          * Changes the value associated with the key of this entry.
          *
@@ -106,34 +140,8 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         }
 
     }
-    internal class Node<T, U>(val key: T, var value: U) {
-        var left: Node<T, U>? = null
 
-        var right: Node<T, U>? = null
-        override fun toString(): String {
-            return "($key=$value)"
-        }
-
-    }
-
-    fun getBalanceFactor(): Double{
-        return A
-    }
-
-    fun setBalanceFactor(newBalanceFactor: Double): Double{
-        val oldBalanceFactor = A
-        if (newBalanceFactor >= 1 || newBalanceFactor < 0.5) {
-            throw IllegalArgumentException()
-        } else {
-            A = newBalanceFactor
-            if (oldBalanceFactor < A && root != null){
-                rebuild(root!!)
-            }
-            return oldBalanceFactor
-        }
-    }
-
-    private fun find(key: K, from: Node<K, V>?): Node<K, V>? {
+    private fun find(key: K, from: ScapeGoatEntry<K, V>?): ScapeGoatEntry<K, V>? {
         if (from == null || from.key == key) {
             return from
         } else if (from.key > key) {
@@ -143,15 +151,19 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         }
     }
 
-    internal fun findPath(key: K): Deque<Node<K, V>> {
-        val deque = ArrayDeque<Node<K, V>>()
+    internal fun findPath(key: K): Deque<ScapeGoatEntry<K, V>> {
+        val deque = ArrayDeque<ScapeGoatEntry<K, V>>()
         var current = root
-        while (current != null && current.key != key) {
+        while (current != null) {
             deque.addLast(current)
-            if (current.key > key) {
-                current = current.left
+            if (current.key == key){
+                current = null
             } else {
-                current = current.right
+                if (current.key > key) {
+                    current = current.left
+                } else {
+                    current = current.right
+                }
             }
         }
         return deque
@@ -180,34 +192,31 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         val oldValue: V?
         val path = findPath(key)
         if (path.isEmpty()) {
-            root = Node(key, value)
+            root = ScapeGoatEntry(key, value)
             oldValue = null
+            _size++
         } else {
             val last = path.last
             if (last.key == key) {
                 oldValue = last.value
-                entries.remove(ScapeGoatEntry(key, oldValue))
-                values.remove(last.value)
                 last.value = value
             } else {
                 if (last.key > key) {
-                    last.left = Node(key, value)
+                    last.left = ScapeGoatEntry(key, value)
                     path.addLast(last.left)
                 } else {
-                    last.right = Node(key, value)
+                    last.right = ScapeGoatEntry(key, value)
                     path.addLast(last.right)
                 }
                 oldValue = null
                 balanceIfNeeded(path)
-                keys.add(key)
-                size++
+                _size++
             }
-            values.add(value)
         }
         return oldValue
     }
 
-    private fun balanceIfNeeded(path: Deque<Node<K, V>>){
+    private fun balanceIfNeeded(path: Deque<ScapeGoatEntry<K, V>>) {
         println("BALANCE_IF_NEEDED")
         val pathToGoat = findScapegoat(path)
         if (!pathToGoat.isEmpty()) {
@@ -224,21 +233,21 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         }
     }
 
-    internal fun findScapegoat(deque: Deque<Node<K, V>>): Deque<Node<K, V>> {
+    internal fun findScapegoat(deque: Deque<ScapeGoatEntry<K, V>>): Deque<ScapeGoatEntry<K, V>> {
         println("FIND_SCAPEGOAT")
         var currentSize = 1
         var depth = 0
         while (!deque.isEmpty()) {
             val current = deque.removeLast()
-            if (!deque.isEmpty()){
+            if (!deque.isEmpty()) {
                 depth += 1
                 val parent = deque.last
                 val siblingSize = if (parent.left == current) sizeOf(parent.right) else sizeOf(parent.left)
                 val totalSize = 1 + currentSize + siblingSize
                 println("TOTAL_SIZE: $totalSize")
-                var coefficient = Math.abs(Math.log(totalSize.toDouble()) / Math.log(1 / A))
+                var coefficient = Math.abs(Math.log(totalSize.toDouble()) / Math.log(1 / balanceFactor))
                         .toString()
-                if (coefficient.length < 7){
+                if (coefficient.length < 7) {
                     coefficient = coefficient.substring(0, coefficient.lastIndex)
                 } else {
                     coefficient = coefficient.substring(0, 6)
@@ -255,12 +264,12 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         return deque
     }
 
-    internal fun sizeOf(root: Node<K, V>?): Int {
+    internal fun sizeOf(root: ScapeGoatEntry<K, V>?): Int {
         println("SIZE_OF" + root)
         if (root == null) {
             return 0
         } else {
-            val deque = ArrayDeque<Node<K, V>>()
+            val deque = ArrayDeque<ScapeGoatEntry<K, V>>()
             var count = 0
             deque.addLast(root)
             while (!deque.isEmpty()) {
@@ -278,16 +287,16 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         }
     }
 
-    internal fun rebuild(goat: Node<K, V>): Node<K, V> {
+    internal fun rebuild(goat: ScapeGoatEntry<K, V>): ScapeGoatEntry<K, V> {
         println("REBUILD" + goat)
-        val sortedNodeList = mutableListOf<Node<K, V>>()
-        var top: Node<K, V>? = goat
-        val stack = ArrayDeque<Node<K, V>>()
+        val sortedEntryList = mutableListOf<ScapeGoatEntry<K, V>>()
+        var top: ScapeGoatEntry<K, V>? = goat
+        val stack = ArrayDeque<ScapeGoatEntry<K, V>>()
         while (top != null || !stack.isEmpty()) {
             if (!stack.isEmpty()) {
                 top = stack.removeFirst()
-                sortedNodeList.add(top)
-                if (top.right != null){
+                sortedEntryList.add(top)
+                if (top.right != null) {
                     val topRight = top.right
                     top.right = null
                     top = topRight
@@ -302,18 +311,18 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
                 top = topLeft
             }
         }
-        return bisect(sortedNodeList)
+        return bisect(sortedEntryList)
     }
 
-    internal fun bisect(nodeList: List<Node<K, V>>): Node<K, V> {
-        println("BISECT" + nodeList.last())
-        val indexOfMiddle = nodeList.size / 2
-        val currentRoot = nodeList[indexOfMiddle]
-        if (nodeList.size > 2) {
-            currentRoot.left = bisect(nodeList.subList(0, indexOfMiddle))
-            currentRoot.right = bisect(nodeList.subList(indexOfMiddle + 1, nodeList.size))
-        } else if (nodeList.size == 2){
-            currentRoot.left = nodeList[0]
+    internal fun bisect(entryList: List<ScapeGoatEntry<K, V>>): ScapeGoatEntry<K, V> {
+        println("BISECT" + entryList.last())
+        val indexOfMiddle = entryList.size / 2
+        val currentRoot = entryList[indexOfMiddle]
+        if (entryList.size > 2) {
+            currentRoot.left = bisect(entryList.subList(0, indexOfMiddle))
+            currentRoot.right = bisect(entryList.subList(indexOfMiddle + 1, entryList.size))
+        } else if (entryList.size == 2) {
+            currentRoot.left = entryList[0]
         }
         return currentRoot
     }
@@ -324,7 +333,11 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
      * @return the previous value associated with the key, or `null` if the key was not present in the map.
      */
     override fun remove(key: K): V? {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (!findPath(key).isEmpty()){
+            return null
+        } else {
+            return null
+        }
     }
 
     override fun lastKey(): K {
@@ -363,17 +376,16 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun comparator(): Comparator<in K> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun comparator(): Comparator<in K>? {
+        return null
     }
 
     /**
      * Returns `true` if the map maps one or more keys to the specified [value].
      */
     override fun containsValue(value: V): Boolean {
-        val iterator = values.iterator()
-        while (iterator().hasNext()) {
-            if (iterator.next() == value) {
+        for (element in this){
+            if (element.value == value){
                 return true
             }
         }
@@ -385,10 +397,8 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
      */
     override fun clear() {
         root = null
-        size = 0
-        keys.clear()
-        values.clear()
-        entries.clear()
+        _size = 0
+        maxSize = 0
     }
 
     /**
@@ -417,14 +427,14 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
     override fun toString(): String {
         val sb = StringBuilder()
         sb.append("{")
-        var top: Node<K, V>? = root
-        val stack = ArrayDeque<Node<K, V>>()
+        var top: ScapeGoatEntry<K, V>? = root
+        val stack = ArrayDeque<ScapeGoatEntry<K, V>>()
         while (top != null || !stack.isEmpty()) {
             if (!stack.isEmpty()) {
                 top = stack.removeFirst()
                 sb.append(top)
                 sb.append(", ")
-                if (top.right != null){
+                if (top.right != null) {
                     val topRight = top.right
                     top.right = null
                     top = topRight

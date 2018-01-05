@@ -48,11 +48,11 @@ class Tests {
     fun rebuild(){
         println("REBUILD_TEST")
         val map = ScapeGoatTree<Int, Int>(0.99999)
-        var node = ScapeGoatTree.Node(1, 1)
-        node.right = ScapeGoatTree.Node(2, 2)
-        node.right!!.right = ScapeGoatTree.Node(3, 3)
-        node.right!!.right!!.right = ScapeGoatTree.Node(4, 4)
-        node.right!!.right!!.right!!.right = ScapeGoatTree.Node(5, 5)
+        var node = ScapeGoatTree.ScapeGoatEntry(1, 1)
+        node.right = ScapeGoatTree.ScapeGoatEntry(2, 2)
+        node.right!!.right = ScapeGoatTree.ScapeGoatEntry(3, 3)
+        node.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(4, 4)
+        node.right!!.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(5, 5)
         println("Before rebuild:")
         printSubTree(node)
         node = map.rebuild(node)
@@ -65,11 +65,11 @@ class Tests {
         println("BISECT_TEST")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         val sortedNodesList = mutableListOf(
-                ScapeGoatTree.Node(1, 1),
-                ScapeGoatTree.Node(2, 2),
-                ScapeGoatTree.Node(3, 3),
-                ScapeGoatTree.Node(4, 4),
-                ScapeGoatTree.Node(5, 5)
+                ScapeGoatTree.ScapeGoatEntry(1, 1),
+                ScapeGoatTree.ScapeGoatEntry(2, 2),
+                ScapeGoatTree.ScapeGoatEntry(3, 3),
+                ScapeGoatTree.ScapeGoatEntry(4, 4),
+                ScapeGoatTree.ScapeGoatEntry(5, 5)
         )
         println("sortedNodesList: " + sortedNodesList)
         val node = map.bisect(sortedNodesList)
@@ -81,11 +81,11 @@ class Tests {
     fun sizeOf(){
         println("SIZE_OF_TEST")
         val map = ScapeGoatTree<Int, Int>(0.99999)
-        val node = ScapeGoatTree.Node(1, 1)
-        node.right = ScapeGoatTree.Node(2, 2)
-        node.right!!.right = ScapeGoatTree.Node(3, 3)
-        node.right!!.right!!.right = ScapeGoatTree.Node(4, 4)
-        node.right!!.right!!.right!!.right = ScapeGoatTree.Node(5, 5)
+        val node = ScapeGoatTree.ScapeGoatEntry(1, 1)
+        node.right = ScapeGoatTree.ScapeGoatEntry(2, 2)
+        node.right!!.right = ScapeGoatTree.ScapeGoatEntry(3, 3)
+        node.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(4, 4)
+        node.right!!.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(5, 5)
         println("Tree for counting:")
         printSubTree(node)
         println("Count:")
@@ -95,12 +95,12 @@ class Tests {
     @Test
     fun findScapeGoat(){
         println("FIND_SCAPE_GOAT_TEST")
-        val node = ScapeGoatTree.Node(1, 1)
-        node.right = ScapeGoatTree.Node(2, 2)
-        node.right!!.right = ScapeGoatTree.Node(3, 3)
-        node.right!!.right!!.right = ScapeGoatTree.Node(4, 4)
-        node.right!!.right!!.right!!.right = ScapeGoatTree.Node(5, 5)
-        val path1 = ArrayDeque<ScapeGoatTree.Node<Int, Int>>()
+        val node = ScapeGoatTree.ScapeGoatEntry(1, 1)
+        node.right = ScapeGoatTree.ScapeGoatEntry(2, 2)
+        node.right!!.right = ScapeGoatTree.ScapeGoatEntry(3, 3)
+        node.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(4, 4)
+        node.right!!.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(5, 5)
+        val path1 = ArrayDeque<ScapeGoatTree.ScapeGoatEntry<Int, Int>>()
         path1.addLast(node)
         path1.addLast(node.right)
         path1.addLast(node.right!!.right)
@@ -133,5 +133,46 @@ class Tests {
         printTree(map)
         println("______________________________________")
         println(map)
+    }
+
+    @Test
+    fun setBalanceFactor(){
+        println("SET_BALANCE_FACTOR")
+        val map = ScapeGoatTree<Int, Int>(0.9)
+        map.put(1, 1)
+        map.put(1, 1)
+        map.put(2, 2)
+        map.put(5, 5)
+        map.put(3, 3)
+        map.put(4, 4)
+        map.put(6, 6)
+        println("0.9:")
+        printTree(map)
+        println("0.99:")
+        map.balanceFactor = 0.99
+        printTree(map)
+        println("0.5:")
+        map.balanceFactor = 0.5
+        printTree(map)
+    }
+
+    @Test
+    fun getKeysValuesEntries(){
+        println("GET_KEYS_VALUES_ENTRIES")//Нужное подчеркнуть
+        val map = ScapeGoatTree<Int, Int>(0.6)
+        map.put(1, 1)
+        map.put(1, 1)
+        map.put(2, 2)
+        map.put(5, 5)
+        map.put(3, 3)
+        map.put(4, 4)
+        map.put(6, 6)
+        printTree(map)
+        println("Keys:")
+        println(map.keys)
+        println("Values")
+        println(map.values)
+        println("Entries")
+        println(map.entries)
     }
 }
