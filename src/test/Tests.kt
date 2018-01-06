@@ -4,6 +4,7 @@ import main.ScapeGoatTree
 import org.testng.annotations.Test
 import io.printSubTree
 import io.printTree
+import main.ScapeGoatEntry
 import java.util.*
 
 class Tests {
@@ -48,11 +49,11 @@ class Tests {
     fun rebuild(){
         println("REBUILD_TEST")
         val map = ScapeGoatTree<Int, Int>(0.99999)
-        var node = ScapeGoatTree.ScapeGoatEntry(1, 1)
-        node.right = ScapeGoatTree.ScapeGoatEntry(2, 2)
-        node.right!!.right = ScapeGoatTree.ScapeGoatEntry(3, 3)
-        node.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(4, 4)
-        node.right!!.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(5, 5)
+        var node = ScapeGoatEntry(1, 1)
+        node.right = ScapeGoatEntry(2, 2)
+        node.right!!.right = ScapeGoatEntry(3, 3)
+        node.right!!.right!!.right = ScapeGoatEntry(4, 4)
+        node.right!!.right!!.right!!.right = ScapeGoatEntry(5, 5)
         println("Before rebuild:")
         printSubTree(node)
         node = map.rebuild(node)
@@ -65,11 +66,11 @@ class Tests {
         println("BISECT_TEST")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         val sortedNodesList = mutableListOf(
-                ScapeGoatTree.ScapeGoatEntry(1, 1),
-                ScapeGoatTree.ScapeGoatEntry(2, 2),
-                ScapeGoatTree.ScapeGoatEntry(3, 3),
-                ScapeGoatTree.ScapeGoatEntry(4, 4),
-                ScapeGoatTree.ScapeGoatEntry(5, 5)
+                ScapeGoatEntry(1, 1),
+                ScapeGoatEntry(2, 2),
+                ScapeGoatEntry(3, 3),
+                ScapeGoatEntry(4, 4),
+                ScapeGoatEntry(5, 5)
         )
         println("sortedNodesList: " + sortedNodesList)
         val node = map.bisect(sortedNodesList)
@@ -81,11 +82,11 @@ class Tests {
     fun sizeOf(){
         println("SIZE_OF_TEST")
         val map = ScapeGoatTree<Int, Int>(0.99999)
-        val node = ScapeGoatTree.ScapeGoatEntry(1, 1)
-        node.right = ScapeGoatTree.ScapeGoatEntry(2, 2)
-        node.right!!.right = ScapeGoatTree.ScapeGoatEntry(3, 3)
-        node.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(4, 4)
-        node.right!!.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(5, 5)
+        val node = ScapeGoatEntry(1, 1)
+        node.right = ScapeGoatEntry(2, 2)
+        node.right!!.right = ScapeGoatEntry(3, 3)
+        node.right!!.right!!.right = ScapeGoatEntry(4, 4)
+        node.right!!.right!!.right!!.right = ScapeGoatEntry(5, 5)
         println("Tree for counting:")
         printSubTree(node)
         println("Count:")
@@ -95,12 +96,12 @@ class Tests {
     @Test
     fun findScapeGoat(){
         println("FIND_SCAPE_GOAT_TEST")
-        val node = ScapeGoatTree.ScapeGoatEntry(1, 1)
-        node.right = ScapeGoatTree.ScapeGoatEntry(2, 2)
-        node.right!!.right = ScapeGoatTree.ScapeGoatEntry(3, 3)
-        node.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(4, 4)
-        node.right!!.right!!.right!!.right = ScapeGoatTree.ScapeGoatEntry(5, 5)
-        val path1 = ArrayDeque<ScapeGoatTree.ScapeGoatEntry<Int, Int>>()
+        val node = ScapeGoatEntry(1, 1)
+        node.right = ScapeGoatEntry(2, 2)
+        node.right!!.right = ScapeGoatEntry(3, 3)
+        node.right!!.right!!.right = ScapeGoatEntry(4, 4)
+        node.right!!.right!!.right!!.right = ScapeGoatEntry(5, 5)
+        val path1 = ArrayDeque<ScapeGoatEntry<Int, Int>>()
         path1.addLast(node)
         path1.addLast(node.right)
         path1.addLast(node.right!!.right)

@@ -4,7 +4,8 @@ import java.io.Serializable
 import java.util.*
 import kotlin.NoSuchElementException
 
-class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>, Iterable<Map.Entry<K, V>>, Cloneable, Serializable {
+class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
+        SortedMap<K, V>, Iterable<Map.Entry<K, V>>, Cloneable, Serializable {
 
     internal var root: ScapeGoatEntry<K, V>? = null
 
@@ -80,75 +81,6 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
             return set
         }
 
-    inner class ScapeGoatTreeIterator : Iterator<Map.Entry<K, V>> {
-        private val innerRoots = ArrayDeque<ScapeGoatEntry<K, V>>()
-        private var next = root
-        private var counter = _size
-        private var returnedBack = false
-
-        private fun findNext(): ScapeGoatEntry<K, V>? {
-            val current = next
-            if (!returnedBack && next!!.left != null) {
-                innerRoots.add(next)
-                next = next!!.left
-                return findNext()
-            } else if (next!!.right != null) {
-                next = next!!.right
-                returnedBack = false
-            } else {
-                next = innerRoots.pollLast()
-                returnedBack = true
-            }
-            counter--
-            return current
-        }
-
-        /**
-         * Returns `true` if the iteration has more elements.
-         */
-        override fun hasNext(): Boolean {
-            return counter != 0
-        }
-
-        /**
-         * Returns the next element in the iteration.
-         */
-        override fun next(): MutableMap.MutableEntry<K, V> {
-            return findNext() ?: throw NoSuchElementException()
-        }
-
-    }
-
-    class ScapeGoatEntry<K, V>(override val key: K, override var value: V) : MutableMap.MutableEntry<K, V> {
-
-        internal var left: ScapeGoatEntry<K, V>? = null
-        internal var right: ScapeGoatEntry<K, V>? = null
-
-        /**
-         * Changes the value associated with the key of this entry.
-         *
-         * @return the previous value corresponding to the key.
-         */
-        override fun setValue(newValue: V): V {
-            val oldValue = value
-            value = newValue
-            return oldValue
-        }
-
-        override fun toString(): String {
-            return "($key=$value)"
-        }
-
-        override fun equals(other: Any?): Boolean {
-            return (other is ScapeGoatEntry<*, *> && key == other.key && value == other.value)
-        }
-
-        override fun hashCode(): Int {
-            return key!!.hashCode() + value!!.hashCode() * 13
-        }
-
-    }
-
     private fun find(key: K, from: ScapeGoatEntry<K, V>?): ScapeGoatEntry<K, V>? {
         if (from == null || from.key == key) {
             return from
@@ -181,7 +113,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double): SortedMap<K, V>
      * Returns an iterator over the elements of this object.
      */
     override fun iterator(): Iterator<Map.Entry<K, V>> {
-        return ScapeGoatTreeIterator()
+        return ScapeGoatTreeIterator<ScapeGoatEntry<K, V>>(this)
     }
 
     /**
