@@ -275,7 +275,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
      */
     override fun remove(key: K): V? {
         val path = findPath(key)
-        if (!path.isEmpty()) {
+        if (!path.isEmpty() && path.last.key == key) {
             val node = path.removeLast()
             val parentOfNode = if (path.isEmpty()) null else path.removeLast()
             val newNode: ScapeGoatEntry<K, V>?

@@ -2,8 +2,8 @@ package test
 
 import main.ScapeGoatTree
 import org.testng.annotations.Test
-import io.printSubTree
-import io.printTree
+import io.subTreeToString
+import io.treeToString
 import main.ScapeGoatEntry
 import java.util.*
 
@@ -11,7 +11,7 @@ class Tests {
 
     @Test
     fun findPath(){
-        println("FIND_PATH_TEST")
+        println("**********FIND_PATH_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         map.put(1, 1)
         println("Path to absent node:")
@@ -20,34 +20,34 @@ class Tests {
 
     @Test
     fun put(){
-        println("PUT_TEST")
+        println("**********PUT_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.5)
         map.put(1, 1)
-        printTree(map)
+        println(treeToString(map))
         println("----------------------------------------------------------------")
         map.put(1, 1)
-        printTree(map)
+        println(treeToString(map))
         println("----------------------------------------------------------------")
         map.put(2, 2)
-        printTree(map)
+        println(treeToString(map))
         println("----------------------------------------------------------------")
         map.put(5, 5)
-        printTree(map)
+        println(treeToString(map))
         println("----------------------------------------------------------------")
         map.put(3, 3)
-        printTree(map)
+        println(treeToString(map))
         println("----------------------------------------------------------------")
         map.put(4, 4)
-        printTree(map)
+        println(treeToString(map))
         println("----------------------------------------------------------------")
         map.put(6, 6)
-        printTree(map)
+        println(treeToString(map))
         println("----------------------------------------------------------------")
     }
 
     @Test
     fun rebuild(){
-        println("REBUILD_TEST")
+        println("**********REBUILD_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         var node = ScapeGoatEntry(1, 1)
         node.right = ScapeGoatEntry(2, 2)
@@ -55,15 +55,15 @@ class Tests {
         node.right!!.right!!.right = ScapeGoatEntry(4, 4)
         node.right!!.right!!.right!!.right = ScapeGoatEntry(5, 5)
         println("Before rebuild:")
-        printSubTree(node)
+        println(subTreeToString(node))
         node = map.rebuild(node)
         println("After rebuild:")
-        printSubTree(node)
+        println(subTreeToString(node))
     }
 
     @Test
     fun bisect(){
-        println("BISECT_TEST")
+        println("**********BISECT_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         val sortedNodesList = mutableListOf(
                 ScapeGoatEntry(1, 1),
@@ -75,12 +75,12 @@ class Tests {
         println("sortedNodesList: " + sortedNodesList)
         val node = map.bisect(sortedNodesList)
         println("After bisect:")
-        printSubTree(node)
+        println(subTreeToString(node))
     }
 
     @Test
     fun sizeOf(){
-        println("SIZE_OF_TEST")
+        println("**********SIZE_OF_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         val node = ScapeGoatEntry(1, 1)
         node.right = ScapeGoatEntry(2, 2)
@@ -88,14 +88,14 @@ class Tests {
         node.right!!.right!!.right = ScapeGoatEntry(4, 4)
         node.right!!.right!!.right!!.right = ScapeGoatEntry(5, 5)
         println("Tree for counting:")
-        printSubTree(node)
+        println(subTreeToString(node))
         println("Count:")
         println(map.sizeOf(node))
     }
 
     @Test
     fun findScapeGoat(){
-        println("FIND_SCAPE_GOAT_TEST")
+        println("**********FIND_SCAPE_GOAT_TEST**********")
         val node = ScapeGoatEntry(1, 1)
         node.right = ScapeGoatEntry(2, 2)
         node.right!!.right = ScapeGoatEntry(3, 3)
@@ -122,7 +122,7 @@ class Tests {
 
     @Test
     fun string(){
-        println("TO_STRING_TEST")
+        println("**********TO_STRING_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.6)
         map.put(1, 1)
         map.put(1, 1)
@@ -131,14 +131,14 @@ class Tests {
         map.put(3, 3)
         map.put(4, 4)
         map.put(6, 6)
-        printTree(map)
+        println(treeToString(map))
         println("______________________________________")
         println(map)
     }
 
     @Test
     fun setBalanceFactor(){
-        println("SET_BALANCE_FACTOR")
+        println("**********SET_BALANCE_FACTOR**********")
         val map = ScapeGoatTree<Int, Int>(0.9)
         map.put(1, 1)
         map.put(1, 1)
@@ -148,18 +148,18 @@ class Tests {
         map.put(4, 4)
         map.put(6, 6)
         println("0.9:")
-        printTree(map)
+        println(treeToString(map))
         println("0.99:")
         map.balanceFactor = 0.99
-        printTree(map)
+        println(treeToString(map))
         println("0.5:")
         map.balanceFactor = 0.5
-        printTree(map)
+        println(treeToString(map))
     }
 
     @Test
     fun getKeysValuesEntries(){
-        println("GET_KEYS_VALUES_ENTRIES")//Нужное подчеркнуть
+        println("**********GET_KEYS_VALUES_ENTRIES**********")//Нужное подчеркнуть
         val map = ScapeGoatTree<Int, Int>(0.6)
         map.put(1, 1)
         map.put(1, 1)
@@ -168,7 +168,7 @@ class Tests {
         map.put(3, 3)
         map.put(4, 4)
         map.put(6, 6)
-        printTree(map)
+        println(treeToString(map))
         println("Keys:")
         println(map.keys)
         println("Values")
@@ -179,7 +179,7 @@ class Tests {
 
     @Test
     fun remove(){
-        println("REMOVE")
+        println("**********REMOVE**********")
         val map = ScapeGoatTree<Int, Int>(0.6)
         map.put(1, 1)
         map.put(2, 2)
@@ -188,24 +188,24 @@ class Tests {
         map.put(4, 4)
         map.put(7, 7)
         map.put(6, 6)
-        printTree(map)
+        println(treeToString(map))
         println("_______________________________________")
         println("Remove(5):")
         map.remove(5)
-        printTree(map)
+        println(treeToString(map))
         println("_______________________________________")
         println("Remove(3):")
         map.remove(3)
-        printTree(map)
+        println(treeToString(map))
         println("_______________________________________")
         println("Remove(1):")
         map.remove(1)
-        printTree(map)
+        println(treeToString(map))
         println("_______________________________________")
         map.remove(7)
         map.remove(6)
         map.remove(2)
         map.remove(4)
-        printTree(map)
+        println(treeToString(map))
     }
 }

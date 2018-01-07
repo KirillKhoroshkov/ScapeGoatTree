@@ -3,15 +3,16 @@ package io
 import main.ScapeGoatEntry
 import main.ScapeGoatTree
 
-fun <K: Comparable<K>, V> printTree(map: ScapeGoatTree<K, V>){
-    printSubTree(map.root)
+fun <K: Comparable<K>, V> treeToString(map: ScapeGoatTree<K, V>): String{
+    return subTreeToString(map.root)
 }
 
-internal fun <K: Comparable<K>, V> printSubTree(root: ScapeGoatEntry<K, V>?) {
+fun <K: Comparable<K>, V> subTreeToString(root: ScapeGoatEntry<K, V>?): String {
     var nodes = mutableListOf<ScapeGoatEntry<K, V>?>()
     var sb = StringBuilder()
+    val totals = StringBuilder()
     if (root != null) {
-        println("($root)")
+        totals.append("($root)\n")
         nodes.add(root)
         var currentList = mutableListOf<ScapeGoatEntry<K, V>?>()
         while (!nodes.isEmpty()) {
@@ -43,13 +44,14 @@ internal fun <K: Comparable<K>, V> printSubTree(root: ScapeGoatEntry<K, V>?) {
                 }
             }
             if (hasNotNull) {
-                println(sb)
+                totals.append(sb.toString() + "\n")
                 sb = StringBuilder()
                 nodes = currentList
                 currentList = mutableListOf()
             }
         }
+        return totals.toString()
     } else {
-        println("It is empty")
+        return "Map is empty"
     }
 }
