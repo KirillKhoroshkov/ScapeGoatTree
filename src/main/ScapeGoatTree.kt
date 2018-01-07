@@ -10,14 +10,14 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
     internal var root: ScapeGoatEntry<K, V>? = null
 
     var balanceFactor: Double = if (balanceFactor >= 1 || balanceFactor < 0.5) {
-        throw IllegalArgumentException()
+        throw IllegalArgumentException("0.5 <= balanceFactor < 1")
     } else {
         balanceFactor
     }
         set(value) {
             val oldBalanceFactor = field
             if (value >= 1 || value < 0.5) {
-                throw IllegalArgumentException()
+                throw IllegalArgumentException("0.5 <= balanceFactor < 1")
             } else {
                 field = value
                 if (oldBalanceFactor > field && root != null) {
