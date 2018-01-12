@@ -42,8 +42,9 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
 
     private var _comparator: Comparator<K>? = null
 
-    val comparator: Comparator<K>?
-        get() = _comparator
+    constructor(balanceFactor: Double, comparator: Comparator<K>) : this(balanceFactor){
+        this._comparator = comparator
+    }
 
     /**
      * Returns the number of key/value pairs in the map.
@@ -51,9 +52,8 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
     override val size: Int
         get() = _size
 
-    constructor(balanceFactor: Double, comparator: Comparator<K>) : this(balanceFactor){
-        this._comparator = comparator
-    }
+    val comparator: Comparator<K>?
+        get() = _comparator
 
     /**
      * Returns a [Set] view of the mappings contained in this map.
@@ -176,7 +176,6 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
     }
 
     private fun balanceIfNeeded(path: Deque<ScapeGoatEntry<K, V>>) {
-        println("BALANCE_IF_NEEDED")
         val pathToGoat = findScapegoat(path)
         if (!pathToGoat.isEmpty()) {
             val goat = pathToGoat.removeLast()
@@ -193,7 +192,6 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
     }
 
     internal fun findScapegoat(deque: Deque<ScapeGoatEntry<K, V>>): Deque<ScapeGoatEntry<K, V>> {
-        println("FIND_SCAPEGOAT")
         var currentSize = 1
         var depth = 0
         while (!deque.isEmpty()) {
@@ -203,16 +201,12 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
                 val parent = deque.last
                 val siblingSize = if (parent.left == current) sizeOf(parent.right) else sizeOf(parent.left)
                 val totalSize = 1 + currentSize + siblingSize
-                println("TOTAL_SIZE: $totalSize")
                 var coefficient = Math.abs(Math.log(totalSize.toDouble()) / Math.log(1 / balanceFactor))
                         .toString()
                 if (coefficient.length > 6) {
                     coefficient = coefficient.substring(0, 6)
                 }
-                println("COEFFICIENT: " + coefficient)
-                println("HEIGHT: " + depth)
                 if (depth > coefficient.toDouble()) {
-                    println("height > coefficient")
                     return deque
                 }
                 currentSize = totalSize
@@ -222,7 +216,6 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
     }
 
     internal fun sizeOf(root: ScapeGoatEntry<K, V>?): Int {
-        println("SIZE_OF" + root)
         if (root == null) {
             return 0
         } else {
@@ -239,13 +232,11 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
                     deque.addLast(current.right)
                 }
             }
-            println("return $count")
             return count
         }
     }
 
     internal fun rebuild(goat: ScapeGoatEntry<K, V>): ScapeGoatEntry<K, V> {
-        println("REBUILD" + goat)
         val sortedEntryList = mutableListOf<ScapeGoatEntry<K, V>>()
         var top: ScapeGoatEntry<K, V>? = goat
         val stack = ArrayDeque<ScapeGoatEntry<K, V>>()
@@ -273,7 +264,6 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
     }
 
     internal fun bisect(entryList: List<ScapeGoatEntry<K, V>>): ScapeGoatEntry<K, V> {
-        println("BISECT" + entryList.last())
         val indexOfMiddle = entryList.size / 2
         val currentRoot = entryList[indexOfMiddle]
         if (entryList.size > 2) {
