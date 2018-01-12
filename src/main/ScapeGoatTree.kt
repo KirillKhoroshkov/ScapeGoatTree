@@ -12,14 +12,24 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
     var balanceFactor: Double = if (balanceFactor >= 1 || balanceFactor < 0.5) {
         throw IllegalArgumentException("0.5 <= balanceFactor < 1")
     } else {
-        balanceFactor
+        val factor = balanceFactor.toString()
+        if (factor.length < 7){
+            factor.toDouble()
+        } else {
+            factor.substring(0, 6).toDouble()
+        }
     }
         set(value) {
             val oldBalanceFactor = field
             if (value >= 1 || value < 0.5) {
                 throw IllegalArgumentException("0.5 <= balanceFactor < 1")
             } else {
-                field = value
+                val factor = value.toString()
+                field = if (factor.length < 7){
+                    factor.toDouble()
+                } else {
+                    factor.substring(0, 6).toDouble()
+                }
                 if (oldBalanceFactor > field && root != null) {
                     root = rebuild(root!!)
                 }
@@ -187,9 +197,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
                 println("TOTAL_SIZE: $totalSize")
                 var coefficient = Math.abs(Math.log(totalSize.toDouble()) / Math.log(1 / balanceFactor))
                         .toString()
-                if (coefficient.length < 7) {
-                    coefficient = coefficient.substring(0, coefficient.lastIndex)
-                } else {
+                if (coefficient.length > 6) {
                     coefficient = coefficient.substring(0, 6)
                 }
                 println("COEFFICIENT: " + coefficient)
