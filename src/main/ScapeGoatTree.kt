@@ -4,7 +4,7 @@ import java.io.Serializable
 import java.util.*
 import kotlin.NoSuchElementException
 
-class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
+class ScapeGoatTree<K, V>(balanceFactor: Double) :
         SortedMap<K, V>, Iterable<Map.Entry<K, V>>, Cloneable, Serializable {
 
     internal var root: ScapeGoatEntry<K, V>? = null
@@ -40,11 +40,20 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
 
     private var maxSize = 0
 
+    private var _comparator: Comparator<K>? = null
+
+    val comparator: Comparator<K>?
+        get() = _comparator
+
     /**
      * Returns the number of key/value pairs in the map.
      */
     override val size: Int
         get() = _size
+
+    constructor(balanceFactor: Double, comparator: Comparator<K>) : this(balanceFactor){
+        this._comparator = comparator
+    }
 
     /**
      * Returns a [Set] view of the mappings contained in this map.
@@ -94,7 +103,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
     private fun find(key: K, from: ScapeGoatEntry<K, V>?): ScapeGoatEntry<K, V>? {
         if (from == null || from.key == key) {
             return from
-        } else if (from.key > key) {
+        } else if (compare(from.key, key) > 0) {
             return find(key, from.left)
         } else {
             return find(key, from.right)
@@ -109,7 +118,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
             if (current.key == key) {
                 current = null
             } else {
-                if (current.key > key) {
+                if (compare(current.key, key) > 0) {
                     current = current.left
                 } else {
                     current = current.right
@@ -151,7 +160,7 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
                 oldValue = last.value
                 last.value = value
             } else {
-                if (last.key > key) {
+                if (compare(last.key, key) > 0) {
                     last.left = ScapeGoatEntry(key, value)
                     path.addLast(last.left)
                 } else {
@@ -439,5 +448,13 @@ class ScapeGoatTree<K: Comparable<K>, V>(balanceFactor: Double) :
         sb.delete(sb.length - 2, sb.length)
         sb.append("}")
         return sb.toString()
+    }
+
+    private fun compare(first: K, second: K): Int {
+        return when {
+            _comparator != null -> _comparator!!.compare(first, second)
+            first is Comparable<*> -> (first as Comparable<Any>).compareTo(second as Comparable<*>)
+            else -> throw ClassCastException("Comparator is absent but K is not comparable")
+        }
     }
 }

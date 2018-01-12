@@ -208,4 +208,29 @@ class Tests {
         map.remove(4)
         println(treeToString(map))
     }
+
+    @Test
+    fun construct(){
+        println("**********CONSTRUCT_TEST**********")
+        val map1 = ScapeGoatTree<Int, Int>(0.5)
+        val map2 = ScapeGoatTree<Int, Int>(0.5,
+                Comparator({ first: Any, second: Any -> second.toString().compareTo(first.toString()) }))
+        println("Comparator of map1: ${map1.comparator}")
+        println("Comparator of map2: ${map2.comparator}")
+    }
+
+    @Test
+    fun inverseCompare(){
+        println("**********INVERSE_COMPARE_TEST**********")
+        val map = ScapeGoatTree<Int, Int>(0.5,
+                Comparator({ first: Any, second: Any -> second.toString().compareTo(first.toString()) }))
+        map.put(1, 1)
+        map.put(2, 2)
+        map.put(5, 5)
+        map.put(3, 3)
+        map.put(4, 4)
+        map.put(6, 6)
+        println("Map with inverse comparator:")
+        println(treeToString(map))
+    }
 }

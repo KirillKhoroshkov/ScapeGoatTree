@@ -2,7 +2,7 @@ package main
 
 import java.util.*
 
-class ScapeGoatTreeIterator<out T: ScapeGoatEntry<out Comparable<*>, out Any?>? >(val tree: ScapeGoatTree<out Comparable<*>, out Any?>) : Iterator<T> {
+class ScapeGoatTreeIterator<out T: ScapeGoatEntry<*, *>>(val tree: ScapeGoatTree<*, *>) : Iterator<T> {
 
     private val innerRoots = ArrayDeque<T>()
     private var next = tree.root
@@ -10,7 +10,7 @@ class ScapeGoatTreeIterator<out T: ScapeGoatEntry<out Comparable<*>, out Any?>? 
     private var counter = tree.size
     private var returnedBack = false
 
-    private fun findNext(): T {
+    private fun findNext(): T? {
         val current = next
         if (!returnedBack && next!!.left != null) {
             innerRoots.add(next as T)
