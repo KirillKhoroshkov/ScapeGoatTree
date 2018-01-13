@@ -2,9 +2,10 @@ package test
 
 import main.ScapeGoatTree
 import org.testng.annotations.Test
-import io.subTreeToString
-import io.treeToString
+import view.subTreeToString
+import view.treeToString
 import main.ScapeGoatEntry
+import view.intTreeToPyramidOfString
 import java.util.*
 
 class Tests {
@@ -215,8 +216,8 @@ class Tests {
         val map1 = ScapeGoatTree<Int, Int>(0.5)
         val map2 = ScapeGoatTree<Int, Int>(0.5,
                 Comparator({ first: Any, second: Any -> second.toString().compareTo(first.toString()) }))
-        println("Comparator of map1: ${map1.comparator}")
-        println("Comparator of map2: ${map2.comparator}")
+        println("Comparator of map1: ${map1.comparator()}")
+        println("Comparator of map2: ${map2.comparator()}")
     }
 
     @Test
@@ -232,5 +233,43 @@ class Tests {
         map.put(6, 6)
         println("Map with inverse comparator:")
         println(treeToString(map))
+    }
+
+    @Test
+    fun intTreeToPyramid(){
+        println("**********INT_TREE_PYRAMID_TEST**********")
+        val map = ScapeGoatTree<Int, Int>(0.8)
+        map.put(1, 1)
+        map.put(2, 2)
+        map.put(5, 5)
+        map.put(3, 3)
+        map.put(4, 4)
+        map.put(6, 6)
+        for (line in intTreeToPyramidOfString(map)){
+            println(line)
+        }
+    }
+
+    @Test
+    fun subMap(){
+        println("**********SUB_MAP_TEST**********")
+        val map = ScapeGoatTree<Int, Int>(0.6)
+        map.put(1, 1)
+        map.put(2, 2)
+        map.put(5, 5)
+        map.put(4, 4)
+        map.put(6, 6)
+        val subMap1 = map.subMap(2, 4)
+        val subMap2 = map.subMap(2, 5)
+        println(map)
+        println("_____________________________")
+        println(subMap1)
+        subMap2.put(3, 3)
+        println(subMap1)
+        subMap1.remove(4)
+        println(subMap1)
+        subMap1.clear()
+        println(subMap2)
+        println(subMap2.size)
     }
 }

@@ -13,7 +13,7 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
         throw IllegalArgumentException("0.5 <= balanceFactor < 1")
     } else {
         val factor = balanceFactor.toString()
-        if (factor.length < 7){
+        if (factor.length < 7) {
             factor.toDouble()
         } else {
             factor.substring(0, 6).toDouble()
@@ -25,7 +25,7 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
                 throw IllegalArgumentException("0.5 <= balanceFactor < 1")
             } else {
                 val factor = value.toString()
-                field = if (factor.length < 7){
+                field = if (factor.length < 7) {
                     factor.toDouble()
                 } else {
                     factor.substring(0, 6).toDouble()
@@ -38,12 +38,12 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
 
     private var _size: Int = 0
 
-    private var maxSize = 0
+    private var lastModifiedSize = 0
 
-    private var _comparator: Comparator<K>? = null
+    private var comparator: Comparator<K>? = null
 
-    constructor(balanceFactor: Double, comparator: Comparator<K>) : this(balanceFactor){
-        this._comparator = comparator
+    constructor(balanceFactor: Double, comparator: Comparator<K>) : this(balanceFactor) {
+        this.comparator = comparator
     }
 
     /**
@@ -51,9 +51,6 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
      */
     override val size: Int
         get() = _size
-
-    val comparator: Comparator<K>?
-        get() = _comparator
 
     /**
      * Returns a [Set] view of the mappings contained in this map.
@@ -132,7 +129,53 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
      * Returns an iterator over the elements of this object.
      */
     override fun iterator(): Iterator<Map.Entry<K, V>> {
-        return ScapeGoatTreeIterator<ScapeGoatEntry<K, V>>(this)
+        return ScapeGoatTreeIterator()
+    }
+
+    inner class ScapeGoatTreeIterator : Iterator<Map.Entry<K, V>> {
+        private val innerRoots = ArrayDeque<ScapeGoatEntry<K, V>>()
+        private var next = root
+        private var counter = size
+        private val firstSize = size
+        private var returnedBack = false
+
+        private fun findNext(): ScapeGoatEntry<K, V>? {
+            val current = next
+            if (next != null) {
+                if (!returnedBack && next!!.left != null) {
+                    innerRoots.add(next)
+                    next = next!!.left
+                    return findNext()
+                } else if (next!!.right != null) {
+                    next = next!!.right
+                    returnedBack = false
+                } else {
+                    next = innerRoots.pollLast()
+                    returnedBack = true
+                }
+                counter--
+            }
+            return current
+        }
+
+        /**
+         * Returns `true` if the iteration has more elements.
+         */
+        override fun hasNext(): Boolean {
+            return counter > 0
+        }
+
+        /**
+         * Returns the next element in the iteration.
+         */
+        override fun next(): Map.Entry<K, V> {
+            if (size != firstSize) {
+                throw ConcurrentModificationException()
+            } else {
+                return findNext() ?: throw NoSuchElementException()
+            }
+        }
+
     }
 
     /**
@@ -259,7 +302,7 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
                 top = topLeft
             }
         }
-        maxSize = _size
+        lastModifiedSize = _size
         return bisect(sortedEntryList)
     }
 
@@ -317,7 +360,7 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
                 root = newNode
             }
             _size--
-            if (_size < balanceFactor * maxSize && root != null) {
+            if (_size < balanceFactor * lastModifiedSize && root != null) {
                 root = rebuild(root!!)
             }
             return node.value
@@ -350,20 +393,224 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
         }
     }
 
-    override fun headMap(p0: K): SortedMap<K, V> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun subMap(fromKey: K, toKey: K): SortedMap<K, V> {
+        return SubMap(fromKey, toKey)
     }
 
-    override fun tailMap(p0: K): SortedMap<K, V> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun headMap(toKey: K): SortedMap<K, V> {
+        return SubMap(null, toKey)
     }
 
-    override fun subMap(p0: K, p1: K): SortedMap<K, V> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun tailMap(fromKey: K): SortedMap<K, V> {
+        return SubMap(fromKey, null)
+    }
+
+    inner class SubMap(val fromKey: K?, val toKey: K?) : SortedMap<K, V>, Iterable<Map.Entry<K, V>> {
+
+        init {
+            if (fromKey != null && toKey != null) {
+                if (compare(fromKey, toKey) > 0) throw IllegalArgumentException()
+            } else if (fromKey == null && toKey == null) throw IllegalArgumentException()
+        }
+
+        private fun isKeyInRange(key: K) =
+                if (fromKey != null && toKey != null) {
+                    compare(key, fromKey) >= 0 && compare(key, toKey) < 0
+                } else if (fromKey != null) {
+                    compare(key, fromKey) >= 0
+                } else if (toKey != null) {
+                    compare(key, toKey) < 0
+                } else throw IllegalArgumentException()
+
+        override fun get(key: K): V? {
+            return if (isKeyInRange(key)) this@ScapeGoatTree[key] else throw IllegalArgumentException()
+        }
+
+        override fun put(key: K, value: V): V? {
+            return if (isKeyInRange(key)) this@ScapeGoatTree.put(key, value) else throw IllegalArgumentException()
+        }
+
+        override fun remove(key: K): V? {
+            return if (isKeyInRange(key)) this@ScapeGoatTree.remove(key) else throw IllegalArgumentException()
+        }
+
+        override fun subMap(fromKey: K, toKey: K): SortedMap<K, V> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun headMap(toKey: K): SortedMap<K, V> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun tailMap(fromKey: K): SortedMap<K, V> {
+            throw UnsupportedOperationException()
+        }
+
+        override fun containsKey(key: K): Boolean {
+            for (element in this) {
+                if (element.key == key) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        override fun containsValue(value: V): Boolean {
+            for (element in this) {
+                if (element.value == value) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        override fun firstKey(): K {
+            val iterator = SubMapIterator()
+            if (iterator.hasNext()) {
+                return iterator.next().key
+            } else {
+                throw NoSuchElementException()
+            }
+        }
+
+        override fun lastKey(): K {
+            var current: Map.Entry<K, V>? = null
+            for (element in this) {
+                current = element
+            }
+            if (current != null) {
+                return current.key
+            } else {
+                throw NoSuchElementException()
+            }
+        }
+
+        override val entries: MutableSet<MutableMap.MutableEntry<K, V>>
+            get() {
+                val set = mutableSetOf<MutableMap.MutableEntry<K, V>>()
+                for (element in this) {
+                    set.add(element as MutableMap.MutableEntry<K, V>)
+                }
+                return set
+            }
+
+        override val keys: MutableSet<K>
+            get() {
+                val set = mutableSetOf<K>()
+                for (element in this) {
+                    set.add(element.key)
+                }
+                return set
+            }
+
+        override val values: MutableList<V>
+            get() {
+                val set = mutableListOf<V>()
+                for (element in this) {
+                    set.add(element.value)
+                }
+                return set
+            }
+
+        override val size: Int
+            get() {
+                var counter = 0
+                for (element in this) {
+                    counter++
+                }
+                return counter
+            }
+
+        override fun putAll(from: Map<out K, V>) {
+            for (element in from) {
+                put(element.key, element.value)
+            }
+        }
+
+        override fun isEmpty(): Boolean {
+            return this.size == 0
+        }
+
+        override fun comparator(): Comparator<K>? {
+            return comparator
+        }
+
+        override fun clear() {
+            for (element in keys) {
+                this@ScapeGoatTree.remove(element)
+            }
+        }
+
+        override fun iterator(): Iterator<Map.Entry<K, V>> {
+            return SubMapIterator()
+        }
+
+        inner class SubMapIterator : Iterator<Map.Entry<K, V>> {
+            private val iterator = this@ScapeGoatTree.iterator()
+            private var next: Map.Entry<K, V>? = null
+            private val firstSize = _size
+
+            init {
+                if (fromKey != null) {
+                    while (iterator.hasNext()) {
+                        val currentNext = iterator.next()
+                        if (compare(currentNext.key, fromKey) >= 0) {
+                            next = if (isKeyInRange(currentNext.key)) currentNext else null
+                            break
+                        }
+                    }
+                } else {
+                    val currentNext = if (iterator.hasNext()) iterator.next() else null
+                    if (currentNext != null && isKeyInRange(currentNext.key)) {
+                        next = currentNext
+                    } else {
+                        next = null
+                    }
+                }
+            }
+
+            override fun hasNext(): Boolean {
+                return next != null
+            }
+
+            override fun next(): Map.Entry<K, V> {
+                if (firstSize != _size) {
+                    throw ConcurrentModificationException()
+                } else if (next == null) {
+                    throw NoSuchElementException()
+                } else {
+                    val returned = next!!
+                    if (iterator.hasNext()) {
+                        val currentNext = iterator.next()
+                        if (isKeyInRange(currentNext.key)) {
+                            next = currentNext
+                        } else {
+                            next = null
+                        }
+                    } else {
+                        next = null
+                    }
+                    return returned
+                }
+            }
+        }
+
+        override fun toString(): String {
+            val sb = StringBuilder()
+            sb.append("{")
+            for (element in this) {
+                sb.append("$element, ")
+            }
+            if (sb.length > 2) {
+                sb.delete(sb.length - 2, sb.length)
+            }
+            sb.append("}")
+            return sb.toString()
+        }
     }
 
     override fun comparator(): Comparator<in K>? {
-        return null
+        return comparator
     }
 
     /**
@@ -384,7 +631,7 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
     override fun clear() {
         root = null
         _size = 0
-        maxSize = 0
+        lastModifiedSize = 0
     }
 
     /**
@@ -418,11 +665,9 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
         while (top != null || !stack.isEmpty()) {
             if (!stack.isEmpty()) {
                 top = stack.removeFirst()
-                sb.append(top)
-                sb.append(", ")
+                sb.append("$top, ")
                 if (top.right != null) {
                     val topRight = top.right
-                    top.right = null
                     top = topRight
                 } else {
                     top = null
@@ -431,18 +676,19 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
             while (top != null) {
                 stack.addFirst(top)
                 val topLeft = top.left
-                top.left = null
                 top = topLeft
             }
         }
-        sb.delete(sb.length - 2, sb.length)
+        if (sb.length > 2) {
+            sb.delete(sb.length - 2, sb.length)
+        }
         sb.append("}")
         return sb.toString()
     }
 
     private fun compare(first: K, second: K): Int {
         return when {
-            _comparator != null -> _comparator!!.compare(first, second)
+            comparator != null -> comparator!!.compare(first, second)
             first is Comparable<*> -> (first as Comparable<Any>).compareTo(second as Comparable<*>)
             else -> throw ClassCastException("Comparator is absent but K is not comparable")
         }
