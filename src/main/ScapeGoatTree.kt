@@ -303,15 +303,18 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
             }
         }
         lastModifiedSize = _size
-        return bisect(sortedEntryList)
+        return toTree(sortedEntryList)
     }
 
-    internal fun bisect(entryList: List<ScapeGoatEntry<K, V>>): ScapeGoatEntry<K, V> {
+    /*
+     *Рекурсивно ломает лист пополам
+     */
+    internal fun toTree(entryList: List<ScapeGoatEntry<K, V>>): ScapeGoatEntry<K, V> {
         val indexOfMiddle = entryList.size / 2
         val currentRoot = entryList[indexOfMiddle]
         if (entryList.size > 2) {
-            currentRoot.left = bisect(entryList.subList(0, indexOfMiddle))
-            currentRoot.right = bisect(entryList.subList(indexOfMiddle + 1, entryList.size))
+            currentRoot.left = toTree(entryList.subList(0, indexOfMiddle))
+            currentRoot.right = toTree(entryList.subList(indexOfMiddle + 1, entryList.size))
         } else if (entryList.size == 2) {
             currentRoot.left = entryList[0]
         }

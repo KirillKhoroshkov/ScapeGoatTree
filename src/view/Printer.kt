@@ -106,5 +106,5 @@ fun <V> intTreeToPyramidOfString(tree: ScapeGoatTree<Int, V>):MutableList<Mutabl
 }
 
 private fun format(int: Int): String{
-    return String.format("%4d", int)
+    return String.format("%5d", int)
 }

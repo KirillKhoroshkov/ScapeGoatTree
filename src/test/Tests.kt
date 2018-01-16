@@ -63,8 +63,8 @@ class Tests {
     }
 
     @Test
-    fun bisect(){
-        println("**********BISECT_TEST**********")
+    fun toTree(){
+        println("**********TO_TREE_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         val sortedNodesList = mutableListOf(
                 ScapeGoatEntry(1, 1),
@@ -74,8 +74,8 @@ class Tests {
                 ScapeGoatEntry(5, 5)
         )
         println("sortedNodesList: " + sortedNodesList)
-        val node = map.bisect(sortedNodesList)
-        println("After bisect:")
+        val node = map.toTree(sortedNodesList)
+        println("After toTree:")
         println(subTreeToString(node))
     }
 

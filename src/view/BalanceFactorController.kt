@@ -43,7 +43,7 @@ object BalanceFactorController {
                 main.map.balanceFactor = newValue
                 textFieldForBalanceFactor.text = ""
                 main.balanceFactorButton.text = "Balance factor: $newValue"
-                main.print(treeToString(main.map))
+                main.drawTree(intTreeToPyramidOfString(main.map))
             } catch (ex: Exception) {
                 textFieldForBalanceFactor.text = ""
                 message.text = ex.toString()
