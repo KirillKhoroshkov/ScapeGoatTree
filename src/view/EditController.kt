@@ -44,12 +44,12 @@ object EditController{
                 removeButton,
                 clearButton,
                 cancelButton)
+        textFieldForKey.onAction = EventHandler { println("SSSSSSSSSSSSSSSSSSSSSSSSSSSS") }
         putButton.onAction = EventHandler {
             try {
                 val key = textFieldForKey.text.toInt()
-                message.text = "Return: " + main.map.put(key, key)
                 textFieldForKey.text = ""
-                main.drawTree(intTreeToPyramidOfString(main.map))
+                message.text = "Return: " + main.put(key)
             }
             catch (ex : Exception){
                 textFieldForKey.text = ""
@@ -59,9 +59,8 @@ object EditController{
         removeButton.onAction = EventHandler {
             try {
                 val key = textFieldForKey.text.toInt()
-                message.text = "Return: " + main.map.remove(key)
                 textFieldForKey.text = ""
-                main.drawTree(intTreeToPyramidOfString(main.map))
+                message.text = "Return: " + main.remove(key)
             }
             catch (ex : Exception){
                 textFieldForKey.text = ""
@@ -69,8 +68,7 @@ object EditController{
             }
         }
         clearButton.onAction = EventHandler {
-            main.map.clear()
-            main.drawTree(intTreeToPyramidOfString(main.map))
+            main.clear()
         }
         val scene = Scene(pane, 500.0, 130.0)
         stage.isResizable = false

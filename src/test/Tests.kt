@@ -5,7 +5,7 @@ import org.testng.annotations.Test
 import view.subTreeToString
 import view.treeToString
 import main.ScapeGoatEntry
-import view.intTreeToPyramidOfString
+import view.treeToPyramid
 import java.util.*
 
 class Tests {
@@ -245,7 +245,7 @@ class Tests {
         map.put(3, 3)
         map.put(4, 4)
         map.put(6, 6)
-        for (line in intTreeToPyramidOfString(map)){
+        for (line in treeToPyramid(map)){
             println(line)
         }
     }

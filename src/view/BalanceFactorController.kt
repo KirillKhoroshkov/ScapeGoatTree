@@ -40,10 +40,9 @@ object BalanceFactorController {
         setButton.onAction = EventHandler {
             try {
                 val newValue = textFieldForBalanceFactor.text.toDouble()
-                main.map.balanceFactor = newValue
                 textFieldForBalanceFactor.text = ""
-                main.balanceFactorButton.text = "Balance factor: $newValue"
-                main.drawTree(intTreeToPyramidOfString(main.map))
+                main.setBalanceFactor(newValue)
+                stage.close()
             } catch (ex: Exception) {
                 textFieldForBalanceFactor.text = ""
                 message.text = ex.toString()
