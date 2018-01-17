@@ -25,7 +25,7 @@ object BalanceFactorController {
         val message = Text()
         message.layoutX = 10.0
         message.layoutY = 60.0
-        val setButton = Button("Edit balance factor")
+        val setButton = Button("     Ok      ")
         setButton.layoutX = 10.0
         setButton.layoutY = 80.0
         val cancelButton = Button("  Cancel   ")
@@ -48,6 +48,7 @@ object BalanceFactorController {
                 message.text = ex.toString()
             }
         }
+        textFieldForBalanceFactor.onAction = setButton.onAction
         val scene = Scene(pane, 500.0, 130.0)
         stage.isResizable = false
         stage.initModality(Modality.APPLICATION_MODAL)
