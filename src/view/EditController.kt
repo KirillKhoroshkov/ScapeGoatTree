@@ -46,15 +46,15 @@ object EditController{
                 cancelButton)
         textFieldForKey.onAction = EventHandler { println("SSSSSSSSSSSSSSSSSSSSSSSSSSSS") }
         putButton.onAction = EventHandler {
-            try {
+            //try {
                 val key = textFieldForKey.text.toInt()
                 textFieldForKey.text = ""
                 message.text = "Return: " + main.put(key)
-            }
-            catch (ex : Exception){
+            //}
+            /*catch (ex : Exception){
                 textFieldForKey.text = ""
                 message.text = ex.toString()
-            }
+            }*/
         }
         removeButton.onAction = EventHandler {
             try {
