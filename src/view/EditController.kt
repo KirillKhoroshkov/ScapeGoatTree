@@ -4,14 +4,19 @@ import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.layout.Pane
+import javafx.scene.shape.Circle
 import javafx.scene.text.Text
 import javafx.stage.Modality
 import javafx.stage.Stage
+import main.ScapeGoatEntry
 import java.lang.Exception
+import java.util.*
 
-object EditController{
+object EditController {
 
-    fun display(main: Main){
+    var deque: Deque<ScapeGoatEntry<Int, Circle>> = ArrayDeque()
+
+    fun display(main: Main) {
         val stage = Stage()
         stage.title = "Edit"
         val pane = Pane()
@@ -36,7 +41,10 @@ object EditController{
         val cancelButton = Button("  Cancel   ")
         cancelButton.layoutX = 300.0
         cancelButton.layoutY = 80.0
-        cancelButton.onAction = EventHandler { stage.close() }
+        cancelButton.onAction = EventHandler {
+            setColor(main, false)
+            stage.close()
+        }
         pane.children.addAll(message,
                 textFieldForKey,
                 textForKey,
@@ -44,25 +52,35 @@ object EditController{
                 removeButton,
                 clearButton,
                 cancelButton)
-        textFieldForKey.onAction = EventHandler { println("SSSSSSSSSSSSSSSSSSSSSSSSSSSS") }
+        textFieldForKey.onAction = EventHandler {
+            setColor(main, false)
+            try {
+                val key = textFieldForKey.text.toInt()
+                val newDeque = main.getDequeTo(key)
+                deque = newDeque
+                setColor(main, true)
+            } catch (ex: Exception){
+                message.text = "Enter simple number"
+            }
+        }
         putButton.onAction = EventHandler {
-            //try {
+            try {
                 val key = textFieldForKey.text.toInt()
                 textFieldForKey.text = ""
                 message.text = "Return: " + main.put(key)
-            //}
-            /*catch (ex : Exception){
+                setColor(main, false)
+            } catch (ex: Exception) {
                 textFieldForKey.text = ""
                 message.text = ex.toString()
-            }*/
+            }
         }
         removeButton.onAction = EventHandler {
             try {
                 val key = textFieldForKey.text.toInt()
                 textFieldForKey.text = ""
+                setColor(main, false)
                 message.text = "Return: " + main.remove(key)
-            }
-            catch (ex : Exception){
+            } catch (ex: Exception) {
                 textFieldForKey.text = ""
                 message.text = ex.toString()
             }
@@ -76,5 +94,11 @@ object EditController{
         stage.initOwner(main.scene.window)
         stage.scene = scene
         stage.show()
+    }
+
+    fun setColor(main: Main, isActive: Boolean){
+        for (element in deque) {
+            main.setColorOf(element.key, isActive)
+        }
     }
 }

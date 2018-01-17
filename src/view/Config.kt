@@ -17,3 +17,5 @@ val STROKE_WIDTH = 2.0
 val LINE_COLOR = Color.BLUE
 
 val LINE_WIDTH = 3.0
+
+val ACTIVE_COLOR = Color.AQUA

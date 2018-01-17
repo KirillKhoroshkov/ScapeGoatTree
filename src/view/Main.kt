@@ -20,22 +20,22 @@ class Main : Application() {
     val scene = Scene(borderPane, 700.0, 500.0)
     private val editButton = Button("Edit")
     private val balanceFactorButton = Button("Balance factor: 0.7")
-    private var isComplete = true
-    private val fullSizeItem = MenuItem("Full size")
-    private val compressedSizeItem = MenuItem("Compressed")
-    private val sizeMenu = MenuButton(fullSizeItem.text)
-    private val tools = ToolBar(editButton, balanceFactorButton, sizeMenu)
-    private val map = ScapeGoatTree<Int, Int>(0.7)
+    private var isFull = true
+    private val fullItem = MenuItem("Full")
+    private val compactSizeItem = MenuItem("Compact")
+    private val dimensionMenu = MenuButton(fullItem.text)
+    private val tools = ToolBar(editButton, balanceFactorButton, dimensionMenu)
+    private val map = ScapeGoatTree<Int, Circle>(0.7)
 
     init {
-        sizeMenu.items.addAll(fullSizeItem, compressedSizeItem)
-        fullSizeItem.onAction = EventHandler {
+        dimensionMenu.items.addAll(fullItem, compactSizeItem)
+        fullItem.onAction = EventHandler {
             setDrawFormat(true)
-            sizeMenu.text = fullSizeItem.text
+            dimensionMenu.text = fullItem.text
         }
-        compressedSizeItem.onAction = EventHandler {
+        compactSizeItem.onAction = EventHandler {
             setDrawFormat(false)
-            sizeMenu.text = compressedSizeItem.text
+            dimensionMenu.text = compactSizeItem.text
         }
         editButton.onAction = EventHandler {
             EditController.display(this)
@@ -54,51 +54,11 @@ class Main : Application() {
         primaryStage.show()
     }
 
-    private fun drawTree() {
-        if (isComplete) {
-            drawCompleteTree(treeToPyramid(map))
-        } else {
-            drawIncompleteTree(treeToPyramid(map))
-        }
+    private fun drawTree(){
+        drawTree(treeToPyramid(map))
     }
 
-    private fun drawCompleteTree(pyramid: MutableList<MutableList<Int?>>) {
-        pane.children.clear()
-        if (!pyramid.isEmpty()) {
-            val height = pyramid.size
-            var oldRow = mutableListOf<Circle?>()
-            for ((Y, list) in pyramid.withIndex()) {
-                val newRow = mutableListOf<Circle?>()
-                for ((X, element) in list.withIndex()) {
-                    if (element != null) {
-                        val shift = (RADIUS + INTERVAL / 2) * (degree2(height - Y - 1) - 1) * (2 * X + 1)
-                        val x = (INTERVAL + RADIUS * 2) * (X + 1) + shift
-                        val y = (DISTANCE + RADIUS * 2) * (Y + 1)
-                        val circle = Circle(x, y, RADIUS)
-                        circle.fill = FILL_COLOR
-                        circle.stroke = STROKE_COLOR
-                        circle.strokeWidth = STROKE_WIDTH
-                        val text = Text(x - RADIUS, y, toFormatString(element))
-                        newRow.add(circle)
-                        pane.children.addAll(circle, text)
-                        if (!oldRow.isEmpty()) {
-                            val parentCircle = oldRow[X / 2]!!
-                            val line = Line(x, y, parentCircle.centerX, parentCircle.centerY)
-                            line.stroke = LINE_COLOR
-                            line.strokeWidth = LINE_WIDTH
-                            pane.children.add(line)
-                            line.toBack()
-                        }
-                    } else {
-                        newRow.add(null)
-                    }
-                }
-                oldRow = newRow
-            }
-        }
-    }
-
-    private fun drawIncompleteTree(pyramid: MutableList<MutableList<Int?>>) {
+    private fun drawTree(pyramid: MutableList<MutableList<Int?>>) {
         pane.children.clear()
         if (!pyramid.isEmpty()) {
             val height = pyramid.size
@@ -112,10 +72,9 @@ class Main : Application() {
                                 leftPass(X, Y, pyramid)
                         val x = (INTERVAL + RADIUS * 2) * (X + 1) + shift
                         val y = (DISTANCE + RADIUS * 2) * (Y + 1)
-                        val circle = Circle(x, y, RADIUS)
-                        circle.fill = FILL_COLOR
-                        circle.stroke = STROKE_COLOR
-                        circle.strokeWidth = STROKE_WIDTH
+                        val circle = map[element]!!
+                        circle.centerX = x
+                        circle.centerY = y
                         val text = Text(x - RADIUS, y, toFormatString(element))
                         newRow.add(circle)
                         pane.children.addAll(circle, text)
@@ -138,14 +97,17 @@ class Main : Application() {
     }
 
     private fun leftPass(x: Int, y: Int, pyramid: MutableList<MutableList<Int?>>): Double {
-        val to = if (y == pyramid.lastIndex) {
-            x + 1
+        if (isFull){
+            return 0.0
         } else {
-            degree2(pyramid.lastIndex - y - 1) * (2 * x + 1)
+            val to = if (y == pyramid.lastIndex) {
+                x + 1
+            } else {
+                degree2(pyramid.lastIndex - y - 1) * (2 * x + 1)
+            }
+            val count = (0 until to).count { pyramid.last()[it] == null }
+            return (RADIUS + INTERVAL / 2) * (count)
         }
-        println(to)
-        val count = (0 until to).count { pyramid.last()[it] == null }
-        return (RADIUS + INTERVAL / 2) * (count)
     }
 
     private fun degree2(index: Int): Int {
@@ -166,13 +128,17 @@ class Main : Application() {
         drawTree()
     }
 
-    fun put(key: Int): Int? {
-        val message = map.put(key, key)
+    fun put(key: Int): Circle? {
+        val circle = Circle(RADIUS)
+        circle.fill = FILL_COLOR
+        circle.stroke = STROKE_COLOR
+        circle.strokeWidth = STROKE_WIDTH
+        val message = map.put(key, circle)
         drawTree()
         return message
     }
 
-    fun remove(key: Int): Int? {
+    fun remove(key: Int): Circle? {
         val message = map.remove(key)
         drawTree()
         return message
@@ -183,8 +149,18 @@ class Main : Application() {
         drawTree()
     }
 
+    fun setColorOf(key: Int, active: Boolean){
+        if (active){
+            map[key]?.fill = ACTIVE_COLOR
+        } else {
+            map[key]?.fill = FILL_COLOR
+        }
+    }
+
+    fun getDequeTo(key: Int) = map.findPath(key)
+
     private fun setDrawFormat(newValue: Boolean) {
-        isComplete = newValue
+        isFull = newValue
         drawTree()
     }
 
