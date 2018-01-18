@@ -65,7 +65,6 @@ class Main : Application() {
             var oldRow = mutableListOf<Circle?>()
             for ((Y, list) in pyramid.withIndex()) {
                 val newRow = mutableListOf<Circle?>()
-                var pass = 0
                 for ((X, element) in list.withIndex()) {
                     if (element != null) {
                         val shift = (RADIUS + INTERVAL / 2) * (degree2(height - Y - 1) - 1) * (2 * X + 1) -
@@ -87,7 +86,6 @@ class Main : Application() {
                             line.toBack()
                         }
                     } else {
-                        pass++
                         newRow.add(null)
                     }
                 }
