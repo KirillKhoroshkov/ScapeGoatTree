@@ -67,7 +67,7 @@ object EditController {
             try {
                 val key = textFieldForKey.text.toInt()
                 textFieldForKey.text = ""
-                message.text = "Return: " + main.put(key)
+                message.text = "Return: " + circleToString(main.put(key))
                 setColor(main, false)
             } catch (ex: Exception) {
                 textFieldForKey.text = ""
@@ -79,7 +79,7 @@ object EditController {
                 val key = textFieldForKey.text.toInt()
                 textFieldForKey.text = ""
                 setColor(main, false)
-                message.text = "Return: " + main.remove(key)
+                message.text = "Return: " + circleToString(main.remove(key))
             } catch (ex: Exception) {
                 textFieldForKey.text = ""
                 message.text = ex.toString()
@@ -96,7 +96,15 @@ object EditController {
         stage.show()
     }
 
-    fun setColor(main: Main, isActive: Boolean){
+    private fun circleToString(circle: Circle?): String{
+        if (circle != null) {
+            return "x: ${circle.centerX}, y: ${circle.centerY}"
+        } else {
+            return "null"
+        }
+    }
+
+    private fun setColor(main: Main, isActive: Boolean){
         for (element in deque) {
             main.setColorOf(element.key, isActive)
         }
