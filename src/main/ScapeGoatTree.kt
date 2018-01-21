@@ -438,15 +438,27 @@ class ScapeGoatTree<K, V>(balanceFactor: Double) :
         }
 
         override fun subMap(fromKey: K, toKey: K): SortedMap<K, V> {
-            throw UnsupportedOperationException()
+            if (isKeyInRange(fromKey) && isKeyInRange(toKey)) {
+                return SubMap(fromKey, toKey)
+            } else {
+                throw IllegalArgumentException()
+            }
         }
 
         override fun headMap(toKey: K): SortedMap<K, V> {
-            throw UnsupportedOperationException()
+            if (isKeyInRange(toKey)) {
+                return SubMap(fromKey, toKey)
+            } else {
+                throw IllegalArgumentException()
+            }
         }
 
         override fun tailMap(fromKey: K): SortedMap<K, V> {
-            throw UnsupportedOperationException()
+            if (isKeyInRange(fromKey)) {
+                return SubMap(fromKey, toKey)
+            } else {
+                throw IllegalArgumentException()
+            }
         }
 
         override fun containsKey(key: K): Boolean {

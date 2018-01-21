@@ -11,7 +11,7 @@ import java.util.*
 class Tests {
 
     @Test
-    fun findPath(){
+    fun findPath() {
         println("**********FIND_PATH_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         map.put(1, 1)
@@ -20,7 +20,7 @@ class Tests {
     }
 
     @Test
-    fun put(){
+    fun put() {
         println("**********PUT_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.5)
         map.put(1, 1)
@@ -47,7 +47,7 @@ class Tests {
     }
 
     @Test
-    fun rebuild(){
+    fun rebuild() {
         println("**********REBUILD_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         var node = ScapeGoatEntry(1, 1)
@@ -63,7 +63,7 @@ class Tests {
     }
 
     @Test
-    fun toTree(){
+    fun toTree() {
         println("**********TO_TREE_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         val sortedNodesList = mutableListOf(
@@ -80,7 +80,7 @@ class Tests {
     }
 
     @Test
-    fun sizeOf(){
+    fun sizeOf() {
         println("**********SIZE_OF_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.99999)
         val node = ScapeGoatEntry(1, 1)
@@ -95,7 +95,7 @@ class Tests {
     }
 
     @Test
-    fun findScapeGoat(){
+    fun findScapeGoat() {
         println("**********FIND_SCAPE_GOAT_TEST**********")
         val node = ScapeGoatEntry(1, 1)
         node.right = ScapeGoatEntry(2, 2)
@@ -122,7 +122,7 @@ class Tests {
     }
 
     @Test
-    fun string(){
+    fun string() {
         println("**********TO_STRING_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.6)
         map.put(1, 1)
@@ -138,7 +138,7 @@ class Tests {
     }
 
     @Test
-    fun setBalanceFactor(){
+    fun setBalanceFactor() {
         println("**********SET_BALANCE_FACTOR**********")
         val map = ScapeGoatTree<Int, Int>(0.9)
         map.put(1, 1)
@@ -159,7 +159,7 @@ class Tests {
     }
 
     @Test
-    fun getKeysValuesEntries(){
+    fun getKeysValuesEntries() {
         println("**********GET_KEYS_VALUES_ENTRIES**********")//Нужное подчеркнуть
         val map = ScapeGoatTree<Int, Int>(0.6)
         map.put(1, 1)
@@ -179,7 +179,7 @@ class Tests {
     }
 
     @Test
-    fun remove(){
+    fun remove() {
         println("**********REMOVE**********")
         val map = ScapeGoatTree<Int, Int>(0.6)
         map.put(1, 1)
@@ -211,7 +211,7 @@ class Tests {
     }
 
     @Test
-    fun construct(){
+    fun construct() {
         println("**********CONSTRUCT_TEST**********")
         val map1 = ScapeGoatTree<Int, Int>(0.5)
         val map2 = ScapeGoatTree<Int, Int>(0.5,
@@ -221,7 +221,7 @@ class Tests {
     }
 
     @Test
-    fun inverseCompare(){
+    fun inverseCompare() {
         println("**********INVERSE_COMPARE_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.5,
                 Comparator({ first: Any, second: Any -> second.toString().compareTo(first.toString()) }))
@@ -236,7 +236,7 @@ class Tests {
     }
 
     @Test
-    fun intTreeToPyramid(){
+    fun intTreeToPyramid() {
         println("**********INT_TREE_PYRAMID_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.8)
         map.put(1, 1)
@@ -245,13 +245,13 @@ class Tests {
         map.put(3, 3)
         map.put(4, 4)
         map.put(6, 6)
-        for (line in treeToPyramid(map)){
+        for (line in treeToPyramid(map)) {
             println(line)
         }
     }
 
     @Test
-    fun subMap(){
+    fun subMap() {
         println("**********SUB_MAP_TEST**********")
         val map = ScapeGoatTree<Int, Int>(0.6)
         map.put(1, 1)
@@ -271,5 +271,39 @@ class Tests {
         subMap1.clear()
         println(subMap2)
         println(subMap2.size)
+    }
+
+    @Test
+    fun subSubMap() {
+        println("**********SUB_SUB_MAP_TEST**********")
+        val map = ScapeGoatTree<Int, Int>(0.6)
+        map.put(1, 1)
+        map.put(2, 2)
+        map.put(5, 5)
+        map.put(4, 4)
+        map.put(6, 6)
+        map.put(7, 7)
+        val subMap = map.subMap(1, 6)
+        val subSubMap = subMap.subMap(2, 5)
+        println("map")
+        println(map)
+        println("_____________________________")
+        println("subMap")
+        println(subMap)
+        println("_____________________________")
+        println("subSubMap")
+        println(subSubMap)
+        println("_____________________________")
+        subSubMap.put(3, 3)
+        subSubMap.remove(4)
+        println("map")
+        println(map)
+        println("_____________________________")
+        println("subMap")
+        println(subMap)
+        println("_____________________________")
+        println("subSubMap")
+        println(subSubMap)
+        println("_____________________________")
     }
 }

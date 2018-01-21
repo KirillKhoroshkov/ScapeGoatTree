@@ -54,7 +54,7 @@ class Main : Application() {
         primaryStage.show()
     }
 
-    private fun drawTree(){
+    private fun drawTree() {
         drawTree(treeToPyramid(map))
     }
 
@@ -95,7 +95,7 @@ class Main : Application() {
     }
 
     private fun leftPass(x: Int, y: Int, pyramid: MutableList<MutableList<Int?>>): Double {
-        if (isFull){
+        if (isFull) {
             return 0.0
         } else {
             val to = if (y == pyramid.lastIndex) {
@@ -147,8 +147,8 @@ class Main : Application() {
         drawTree()
     }
 
-    fun setColorOf(key: Int, active: Boolean){
-        if (active){
+    fun setColorOf(key: Int, active: Boolean) {
+        if (active) {
             map[key]?.fill = ACTIVE_COLOR
         } else {
             map[key]?.fill = FILL_COLOR
