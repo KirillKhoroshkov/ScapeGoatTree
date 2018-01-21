@@ -91,7 +91,6 @@ object EditController {
         val scene = Scene(pane, 500.0, 130.0)
         stage.isResizable = false
         stage.initModality(Modality.APPLICATION_MODAL)
-        stage.initOwner(main.scene.window)
         stage.scene = scene
         stage.show()
     }

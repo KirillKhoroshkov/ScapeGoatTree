@@ -17,25 +17,29 @@ class Main : Application() {
     private val borderPane = BorderPane()
     private val pane = Pane()
     private val scrollPane = ScrollPane(pane)
-    val scene = Scene(borderPane, 700.0, 500.0)
+    private val scene = Scene(borderPane, 700.0, 500.0)
     private val editButton = Button("Edit")
     private val balanceFactorButton = Button("Balance factor: 0.7")
     private var isFull = true
+    set(value) {
+        field = value
+        drawTree()
+    }
     private val fullItem = MenuItem("Full")
     private val compactSizeItem = MenuItem("Compact")
-    private val dimensionMenu = MenuButton(fullItem.text)
-    private val tools = ToolBar(editButton, balanceFactorButton, dimensionMenu)
+    private val drawFormatMenu = MenuButton(fullItem.text)
+    private val tools = ToolBar(editButton, balanceFactorButton, drawFormatMenu)
     private val map = ScapeGoatTree<Int, Circle>(0.7)
 
     init {
-        dimensionMenu.items.addAll(fullItem, compactSizeItem)
+        drawFormatMenu.items.addAll(fullItem, compactSizeItem)
         fullItem.onAction = EventHandler {
-            setDrawFormat(true)
-            dimensionMenu.text = fullItem.text
+            isFull = true
+            drawFormatMenu.text = fullItem.text
         }
         compactSizeItem.onAction = EventHandler {
-            setDrawFormat(false)
-            dimensionMenu.text = compactSizeItem.text
+            isFull = false
+            drawFormatMenu.text = compactSizeItem.text
         }
         editButton.onAction = EventHandler {
             EditController.display(this)
@@ -156,11 +160,6 @@ class Main : Application() {
     }
 
     fun getDequeTo(key: Int) = map.findPath(key)
-
-    private fun setDrawFormat(newValue: Boolean) {
-        isFull = newValue
-        drawTree()
-    }
 
     companion object {
         @JvmStatic
