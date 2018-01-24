@@ -13,7 +13,9 @@ import java.lang.Exception
 
 object EditController {
 
-    var deque = mutableListOf<Int>()
+    @Volatile
+    private var isAvailable = true
+    private var deque = mutableListOf<Int>()
 
     fun display(main: Main) {
         val stage = Stage()
@@ -38,12 +40,28 @@ object EditController {
         buttons.layoutX = 10.0
         buttons.layoutY = 80.0
         cancelButton.onAction = EventHandler {
-            dyeInDeActiveColor(main)
-            stage.close()
+            Thread {
+                while (!isAvailable) {
+                }
+                isAvailable = false
+                dyeInDeActiveColor(main)
+                Platform.runLater {
+                    stage.close()
+                    isAvailable = true
+                }
+            }.start()
         }
         stage.onCloseRequest = EventHandler {
-            dyeInDeActiveColor(main)
-            stage.close()
+            Thread {
+                while (!isAvailable) {
+                }
+                isAvailable = false
+                dyeInDeActiveColor(main)
+                Platform.runLater {
+                    stage.close()
+                    isAvailable = true
+                }
+            }.start()
         }
         pane.children.addAll(message,
                 textFieldForKey,
@@ -53,17 +71,20 @@ object EditController {
         findButton.onAction = EventHandler {
             Thread {
                 try {
-                    dyeInDeActiveColor(main)
+                    while (!isAvailable) {}
+                    isAvailable = false
                     val key = textFieldForKey.text.toInt()
-                    val newDeque = main.getDequeTo(key).map { it.key }
-                    deque = newDeque as MutableList<Int>
+                    dyeInDeActiveColor(main)
+                    find(key, main)
                     dyeInActiveColor(main)
                     if (deque.isEmpty() || deque.last() != key) {
                         dyeInDeActiveColor(main)
                     }
                     message.text = "Return: " + if (deque.last() == key) key else null
+                    isAvailable = true
                 } catch (ex: Exception) {
                     message.text = "Enter simple number"
+                    isAvailable = true
                 }
             }.start()
         }
@@ -71,6 +92,8 @@ object EditController {
         putButton.onAction = EventHandler {
             Thread {
                 try {
+                    while (!isAvailable) {}
+                    isAvailable = false
                     val key = textFieldForKey.text.toInt()
                     textFieldForKey.text = ""
                     find(key, main)
@@ -82,29 +105,44 @@ object EditController {
                         }
                         message.text = "Return: " + if (rez != null) key else null
                         dyeInActiveColor(key, main)
+                        isAvailable = true
                     }
                 } catch (ex: Exception) {
                     textFieldForKey.text = ""
                     message.text = ex.toString()
+                    isAvailable = true
                 }
             }.start()
         }
         removeButton.onAction = EventHandler {
             Thread {
                 try {
+                    while (!isAvailable) {}
+                    isAvailable = false
                     val key = textFieldForKey.text.toInt()
                     textFieldForKey.text = ""
                     find(key, main)
                     dyeInDeActiveColor(main)
-                    Platform.runLater { message.text = "Return: " + if (main.remove(key) != null) key else null }
+                    Platform.runLater {
+                        message.text = "Return: " + if (main.remove(key) != null) key else null
+                        isAvailable = true
+                    }
                 } catch (ex: Exception) {
                     textFieldForKey.text = ""
                     message.text = ex.toString()
+                    isAvailable = true
                 }
             }.start()
         }
         clearButton.onAction = EventHandler {
-            main.clear()
+            Thread {
+                while (!isAvailable) { }
+                isAvailable = false
+                Platform.runLater {
+                    main.clear()
+                    isAvailable = true
+                }
+            }.start()
         }
         val scene = Scene(pane, 500.0, 130.0)
         stage.isResizable = false
