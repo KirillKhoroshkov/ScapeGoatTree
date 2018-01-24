@@ -41,6 +41,10 @@ object EditController {
             dyeInDeActiveColor(main)
             stage.close()
         }
+        stage.onCloseRequest = EventHandler {
+            dyeInDeActiveColor(main)
+            stage.close()
+        }
         pane.children.addAll(message,
                 textFieldForKey,
                 textForKey,
