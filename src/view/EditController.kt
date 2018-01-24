@@ -1,8 +1,10 @@
 package view
 
+import javafx.application.Platform
 import javafx.event.EventHandler
 import javafx.scene.Scene
 import javafx.scene.control.*
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.shape.Circle
 import javafx.scene.text.Text
@@ -30,60 +32,68 @@ object EditController {
         message.layoutX = 10.0
         message.layoutY = 60.0
         val putButton = Button("    Put    ")
-        putButton.layoutX = 10.0
-        putButton.layoutY = 80.0
         val removeButton = Button("  Remove  ")
-        removeButton.layoutX = 100.0
-        removeButton.layoutY = 80.0
+        val findButton = Button("  Find   ")
         val clearButton = Button("  Clear    ")
-        clearButton.layoutX = 200.0
-        clearButton.layoutY = 80.0
         val cancelButton = Button("  Cancel   ")
-        cancelButton.layoutX = 300.0
-        cancelButton.layoutY = 80.0
+        val buttons = HBox(putButton, removeButton, findButton, clearButton, cancelButton)
+        buttons.spacing = 5.0
+        buttons.layoutX = 10.0
+        buttons.layoutY = 80.0
         cancelButton.onAction = EventHandler {
-            setColor(main, false)
+            dyeInDeActiveColor(main)
             stage.close()
         }
         pane.children.addAll(message,
                 textFieldForKey,
                 textForKey,
-                putButton,
-                removeButton,
-                clearButton,
-                cancelButton)
-        textFieldForKey.onAction = EventHandler {
-            setColor(main, false)
-            try {
-                val key = textFieldForKey.text.toInt()
-                val newDeque = main.getDequeTo(key)
-                deque = newDeque
-                setColor(main, true)
-            } catch (ex: Exception){
-                message.text = "Enter simple number"
-            }
+                buttons
+        )
+        findButton.onAction = EventHandler {
+            Thread {
+                try {
+                    dyeInDeActiveColor(main)
+                    val key = textFieldForKey.text.toInt()
+                    val newDeque = main.getDequeTo(key)
+                    deque = newDeque
+                    dyeInActiveColor(main)
+                    if (deque.isEmpty() || deque.last.key != key) {
+                        dyeInDeActiveColor(main)
+                    }
+                } catch (ex: Exception) {
+                    message.text = "Enter simple number"
+                }
+            }.start()
         }
+        textFieldForKey.onAction = findButton.onAction
         putButton.onAction = EventHandler {
-            try {
-                val key = textFieldForKey.text.toInt()
-                textFieldForKey.text = ""
-                message.text = "Return: " + circleToString(main.put(key))
-                setColor(main, false)
-            } catch (ex: Exception) {
-                textFieldForKey.text = ""
-                message.text = ex.toString()
-            }
+            Thread {
+                try {
+                    val key = textFieldForKey.text.toInt()
+                    textFieldForKey.text = ""
+                    find(key, main)
+                    dyeInDeActiveColor(main)
+                    Platform.runLater { message.text = "Return: " + if (main.put(key) != null) key else null }
+                    dyeInActiveColor(key, main)
+                } catch (ex: Exception) {
+                    textFieldForKey.text = ""
+                    message.text = ex.toString()
+                }
+            }.start()
         }
         removeButton.onAction = EventHandler {
-            try {
-                val key = textFieldForKey.text.toInt()
-                textFieldForKey.text = ""
-                setColor(main, false)
-                message.text = "Return: " + circleToString(main.remove(key))
-            } catch (ex: Exception) {
-                textFieldForKey.text = ""
-                message.text = ex.toString()
-            }
+            Thread {
+                try {
+                    val key = textFieldForKey.text.toInt()
+                    textFieldForKey.text = ""
+                    find(key, main)
+                    dyeInDeActiveColor(main)
+                    Platform.runLater { message.text = "Return: " + if (main.remove(key) != null) key else null }
+                } catch (ex: Exception) {
+                    textFieldForKey.text = ""
+                    message.text = ex.toString()
+                }
+            }.start()
         }
         clearButton.onAction = EventHandler {
             main.clear()
@@ -95,17 +105,32 @@ object EditController {
         stage.show()
     }
 
-    private fun circleToString(circle: Circle?): String{
-        if (circle != null) {
-            return "x: ${circle.centerX}, y: ${circle.centerY}"
-        } else {
-            return "null"
+    private fun find(key: Int, main: Main) {
+        dyeInDeActiveColor(main)
+        val newDeque = main.getDequeTo(key)
+        deque = newDeque
+        dyeInActiveColor(main)
+    }
+
+    private fun dyeInActiveColor(key: Int, main: Main) {
+        main.setColorOf(key, true)
+    }
+
+    private fun dyeInActiveColor(main: Main) {
+        if (!deque.isEmpty()) {
+            var previous = deque.first
+            for (element in deque) {
+                main.setColorOf(previous.key, false)
+                previous = element
+                main.setColorOf(element.key, true)
+                Thread.sleep(400)
+            }
         }
     }
 
-    private fun setColor(main: Main, isActive: Boolean){
-        for (element in deque) {
-            main.setColorOf(element.key, isActive)
+    private fun dyeInDeActiveColor(main: Main) {
+        if (!deque.isEmpty()) {
+            main.setColorOf(deque.last.key, false)
         }
     }
 }
