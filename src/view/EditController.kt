@@ -6,17 +6,14 @@ import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
-import javafx.scene.shape.Circle
 import javafx.scene.text.Text
 import javafx.stage.Modality
 import javafx.stage.Stage
-import main.ScapeGoatEntry
 import java.lang.Exception
-import java.util.*
 
 object EditController {
 
-    var deque: Deque<ScapeGoatEntry<Int, Circle>> = ArrayDeque()
+    var deque = mutableListOf<Int>()
 
     fun display(main: Main) {
         val stage = Stage()
@@ -54,12 +51,13 @@ object EditController {
                 try {
                     dyeInDeActiveColor(main)
                     val key = textFieldForKey.text.toInt()
-                    val newDeque = main.getDequeTo(key)
-                    deque = newDeque
+                    val newDeque = main.getDequeTo(key).map { it.key }
+                    deque = newDeque as MutableList<Int>
                     dyeInActiveColor(main)
-                    if (deque.isEmpty() || deque.last.key != key) {
+                    if (deque.isEmpty() || deque.last() != key) {
                         dyeInDeActiveColor(main)
                     }
+                    message.text = "Return: " + if (deque.last() == key) key else null
                 } catch (ex: Exception) {
                     message.text = "Enter simple number"
                 }
@@ -73,8 +71,14 @@ object EditController {
                     textFieldForKey.text = ""
                     find(key, main)
                     dyeInDeActiveColor(main)
-                    Platform.runLater { message.text = "Return: " + if (main.put(key) != null) key else null }
-                    dyeInActiveColor(key, main)
+                    Platform.runLater {
+                        val rez = main.put(key)
+                        if (rez == null) {
+                            deque.add(key)
+                        }
+                        message.text = "Return: " + if (rez != null) key else null
+                        dyeInActiveColor(key, main)
+                    }
                 } catch (ex: Exception) {
                     textFieldForKey.text = ""
                     message.text = ex.toString()
@@ -107,8 +111,8 @@ object EditController {
 
     private fun find(key: Int, main: Main) {
         dyeInDeActiveColor(main)
-        val newDeque = main.getDequeTo(key)
-        deque = newDeque
+        val newDeque = main.getDequeTo(key).map { it.key }
+        deque = newDeque as MutableList<Int>
         dyeInActiveColor(main)
     }
 
@@ -118,11 +122,11 @@ object EditController {
 
     private fun dyeInActiveColor(main: Main) {
         if (!deque.isEmpty()) {
-            var previous = deque.first
+            var previous = deque[0]
             for (element in deque) {
-                main.setColorOf(previous.key, false)
+                main.setColorOf(previous, false)
                 previous = element
-                main.setColorOf(element.key, true)
+                main.setColorOf(element, true)
                 Thread.sleep(400)
             }
         }
@@ -130,7 +134,7 @@ object EditController {
 
     private fun dyeInDeActiveColor(main: Main) {
         if (!deque.isEmpty()) {
-            main.setColorOf(deque.last.key, false)
+            main.setColorOf(deque.last(), false)
         }
     }
 }
