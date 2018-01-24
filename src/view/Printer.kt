@@ -12,7 +12,7 @@ internal fun <K: Comparable<K>, V> subTreeToString(root: ScapeGoatEntry<K, V>?):
     var sb = StringBuilder()
     val totals = StringBuilder()
     if (root != null) {
-        totals.append("($root)\n")
+        totals.append("(${root.key})\n")
         nodes.add(root)
         var currentList = mutableListOf<ScapeGoatEntry<K, V>?>()
         while (!nodes.isEmpty()) {
@@ -22,25 +22,25 @@ internal fun <K: Comparable<K>, V> subTreeToString(root: ScapeGoatEntry<K, V>?):
                 nodes.removeAt(0)
                 if (current != null) {
                     if (current.left != null) {
-                        sb.append("(" + current.left + ", ")
+                        sb.append("(" + current.left!!.key + ", ")
                         hasNotNull = true
                         currentList.add(current.left)
                     } else {
-                        sb.append("((N=N), ")
+                        sb.append("(N, ")
                         currentList.add(null)
                     }
                     if (current.right != null) {
-                        sb.append(current.right.toString() + ")")
+                        sb.append(current.right!!.key.toString() + ")")
                         hasNotNull = true
                         currentList.add(current.right)
                     } else {
-                        sb.append("(N=N))")
+                        sb.append("N)")
                         currentList.add(null)
                     }
                 } else {
                     currentList.add(null)
                     currentList.add(null)
-                    sb.append("((N=N), (N=N))")
+                    sb.append("((N), (N))")
                 }
             }
             if (hasNotNull) {
