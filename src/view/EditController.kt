@@ -17,6 +17,16 @@ object EditController {
     private var isAvailable = true
     private var deque = mutableListOf<Int>()
 
+    @Synchronized
+    private fun getPermission(): Boolean{
+        if (isAvailable){
+            isAvailable = false
+            return true
+        } else {
+            return false
+        }
+    }
+
     fun display(main: Main) {
         val stage = Stage()
         stage.title = "Edit"
@@ -41,9 +51,7 @@ object EditController {
         buttons.layoutY = 80.0
         cancelButton.onAction = EventHandler {
             Thread {
-                while (!isAvailable) {
-                }
-                isAvailable = false
+                while (!getPermission()) { }
                 dyeInDeActiveColor(main)
                 Platform.runLater {
                     stage.close()
@@ -53,9 +61,7 @@ object EditController {
         }
         stage.onCloseRequest = EventHandler {
             Thread {
-                while (!isAvailable) {
-                }
-                isAvailable = false
+                while (!getPermission()) { }
                 dyeInDeActiveColor(main)
                 Platform.runLater {
                     stage.close()
@@ -71,12 +77,10 @@ object EditController {
         findButton.onAction = EventHandler {
             Thread {
                 try {
-                    while (!isAvailable) {}
-                    isAvailable = false
+                    while (!getPermission()) {}
                     val key = textFieldForKey.text.toInt()
                     dyeInDeActiveColor(main)
                     find(key, main)
-                    dyeInActiveColor(main)
                     if (deque.isEmpty() || deque.last() != key) {
                         dyeInDeActiveColor(main)
                     }
@@ -92,8 +96,7 @@ object EditController {
         putButton.onAction = EventHandler {
             Thread {
                 try {
-                    while (!isAvailable) {}
-                    isAvailable = false
+                    while (!getPermission()) {}
                     val key = textFieldForKey.text.toInt()
                     textFieldForKey.text = ""
                     find(key, main)
@@ -117,8 +120,7 @@ object EditController {
         removeButton.onAction = EventHandler {
             Thread {
                 try {
-                    while (!isAvailable) {}
-                    isAvailable = false
+                    while (!getPermission()) {}
                     val key = textFieldForKey.text.toInt()
                     textFieldForKey.text = ""
                     find(key, main)
@@ -136,8 +138,7 @@ object EditController {
         }
         clearButton.onAction = EventHandler {
             Thread {
-                while (!isAvailable) { }
-                isAvailable = false
+                while (!getPermission()) { }
                 Platform.runLater {
                     main.clear()
                     isAvailable = true
